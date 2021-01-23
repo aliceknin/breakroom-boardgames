@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import socketIOClient from 'socket.io-client';
 
-const ENDPOINT = 'http://127.0.0.1:4005';
+const ENDPOINT = 'http://localhost:4005';
 
 const SocketClient = () => {
     const [response, setResponse] = useState("");
@@ -9,7 +9,8 @@ const SocketClient = () => {
 
     useEffect(() => {
         console.log("trying to connect...");
-        const socket = socketIOClient(ENDPOINT);
+        const socket = process.env.NODE_ENV === "production" ?
+            socketIOClient() : socketIOClient(ENDPOINT);
 
         socket.on("count", data => {
             setResponse(data);

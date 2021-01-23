@@ -1,3 +1,4 @@
+const path = require('path');
 const express = require('express');
 const app = express();
 const server = require('http').Server(app);
@@ -9,10 +10,6 @@ const io = require('socket.io')(server, {
 });
 
 const PORT = process.env.PORT || 4005;
-
-app.get('/', (req, res) => {
-    res.send("yo");
-});
 
 let userCount = 0;
 
@@ -33,6 +30,28 @@ io.on('connection', (socket) => {
         io.emit("user left", userCount);
     });
 });
+
+// heroku sets NODE_ENV to "production" by default, 
+// so this kicks in when deployed there
+if (process.env.NODE_ENV === "production") {
+    // make heroku redirect from http to https
+    app.use((req, res, next) => {
+        if (req.header('x-forwarded-proto') !== 'https') {
+            res.redirect(`https://${req.header('host')}${req.url}`);
+        } else{
+            next();
+        }
+    });
+    app.use(express.static(path.join(__dirname, '../client/build')));
+    app.get('/*', (req, res) => {
+        res.sendFile(path.join(__dirname, '../client/build/index.html'))
+    });
+    app.enable('trust proxy');
+} else {
+    app.get('/', (req, res) => {
+        res.send("yo");
+    });
+}
 
 server.listen(PORT, function() {
     console.log(`Server is running on port ${PORT}`);

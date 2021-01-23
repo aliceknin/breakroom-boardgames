@@ -5,11 +5,12 @@
   "main": "./server/index.js",
   "scripts": {
     "test": "jest",
-    "start": "node index.js",
+    "start": "node ./server/index.js",
     "backend": "nodemon",
     "frontend": "cd client && npm start",
     "dev": "concurrently \"npm run backend\" \"npm run frontend\"",
-    "debug": "concurrently \"nodemon --inspect\" \"npm run frontend\""
+    "debug": "concurrently \"nodemon --inspect\" \"npm run frontend\"",
+    "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "author": "",
   "license": "ISC",
