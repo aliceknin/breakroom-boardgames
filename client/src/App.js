@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import SocketClient from './components/SocketClient';
+import { useState } from "react";
+import SocketClient from "./components/SocketClient";
 
-import logo from './logo.svg';
-import './App.css';
+import logo from "./logo.svg";
+import "./App.css";
 
 function App() {
   const [connected, setConnected] = useState(false);
@@ -11,8 +11,8 @@ function App() {
       <header className="App-header">
         <img src={logo} className="App-logo" alt="logo" />
         <div>
-          {connected && <SocketClient/>}
-          <button onClick={() => setConnected(c => !c)}>
+          {connected && <SocketClient />}
+          <button onClick={() => setConnected((c) => !c)}>
             {connected ? "Disconnect" : "Connect to Server"}
           </button>
         </div>

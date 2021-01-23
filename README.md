@@ -1,3 +1,3 @@
 # Breakroom Boardgames
 
-Experiments with creating networked games. 
+Experiments with creating networked games.

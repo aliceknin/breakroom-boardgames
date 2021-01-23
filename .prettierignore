@@ -1,0 +1,13 @@
+# dependencies
+node_modules
+
+# production
+build
+
+# editor settings
+.vscode
+
+# misc
+npm-debug.log*
+.eslintcache
+
