@@ -34,8 +34,8 @@ const SocketClient = () => {
 
     return (
         <div>
-            <p>There are {userCount} user(s) connected right now.</p>
-            <p>It's been {response} seconds since I connected.</p>
+            <p>There {userCount === 1 ? "is" : "are"} {userCount} user{userCount !== 1 && "s"} connected right now.</p>
+            <p>It's been {response} second{response !== 1 && "s"} since I connected.</p>
         </div>
     );
 }

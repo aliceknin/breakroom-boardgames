@@ -20,7 +20,8 @@ io.on('connection', (socket) => {
 
     let secondsSinceConnection = 0;
     let interval = setInterval(() => {
-        socket.emit("count", secondsSinceConnection++);
+        secondsSinceConnection++;
+        socket.emit("count", secondsSinceConnection);
     }, 1000);
 
     socket.on('disconnect', () => {
