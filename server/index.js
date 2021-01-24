@@ -17,12 +17,29 @@ io.on("connection", (socket) => {
   console.log("a user connected");
   userCount++;
   io.emit("user joined", userCount);
+  console.log(io.sockets.adapter.rooms);
+
+  socket.emit("got you");
+  socket.on("join room", (room) => {
+    socket.join(room);
+    console.log("joined", room);
+    socket.emit("room joined", room);
+    io.to(room).emit("msg", "A new user joined!");
+    console.log(io.sockets.adapter.rooms);
+  });
 
   let secondsSinceConnection = 0;
   let interval = setInterval(() => {
     secondsSinceConnection++;
     socket.emit("count", secondsSinceConnection);
   }, 1000);
+
+  socket.on("leaving room", (room) => {
+    io.to(room).emit("msg", "A user left.");
+    socket.leave(room);
+    console.log("a user left", room);
+    console.log(io.sockets.adapter.rooms);
+  });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
