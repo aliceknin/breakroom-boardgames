@@ -35,11 +35,18 @@ const Room = () => {
       });
     });
     
-    return () => {
+    const cleanup = () => {
       console.log("disconnecting");
       socket.emit("leaving room", roomName, () => {
         socket.disconnect();
       });
+    };
+
+    window.addEventListener("beforeunload", cleanup);
+
+    return () => {
+      cleanup();
+      window.removeEventListener("beforeunload", cleanup);
     };
   }, [roomName]);
 
