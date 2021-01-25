@@ -24,7 +24,7 @@ io.on("connection", (socket) => {
     socket.join(room);
     console.log("joined", room);
     socket.emit("room joined", room);
-    io.to(room).emit("msg", "A new user joined!");
+    io.to(room).emit("broadcast", { msg: "A new user joined!", room });
     console.log(io.sockets.adapter.rooms);
   });
 
@@ -34,8 +34,13 @@ io.on("connection", (socket) => {
     socket.emit("count", secondsSinceConnection);
   }, 1000);
 
+  socket.on("msg", (msg) => {
+    io.to(msg.room).emit("broadcast", msg);
+    console.log(msg.msg);
+  });
+
   socket.on("leaving room", (room) => {
-    io.to(room).emit("msg", "A user left.");
+    io.to(room).emit("broadcast", { msg: "A user left.", room });
     socket.leave(room);
     console.log("a user left", room);
     console.log(io.sockets.adapter.rooms);

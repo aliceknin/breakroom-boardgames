@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socketIOClient from "socket.io-client";
+import Chat from "../components/Chat";
 
 const ENDPOINT = "http://localhost:4005";
 
 const Room = () => {
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
-  const [messages, setMessages] = useState([]);
   const { roomName } = useParams();
 
   useEffect(() => {
@@ -21,20 +21,16 @@ const Room = () => {
     socket.on("got you", () => {
       console.log("saw connection");
       socket.emit("join room", roomName);
-
-      // maybe do something with acknowledgement functions instead?
-      socket.on("room joined", (data) => {
-        if (data === roomName) {
-          setConnected(true);
-          console.log("joined", roomName);
-        }
-      });
-
-      socket.on("msg", (data) => {
-        setMessages((msgs) => msgs.concat(data));
-      });
     });
-    
+
+    // maybe do something with acknowledgement functions instead?
+    socket.on("room joined", (data) => {
+      if (data === roomName) {
+        setConnected(true);
+        console.log("joined", roomName);
+      }
+    });
+
     const cleanup = () => {
       console.log("disconnecting");
       socket.emit("leaving room", roomName, () => {
@@ -59,9 +55,7 @@ const Room = () => {
       {connected ? (
         <div>
           <h1>Welcome to room {roomName}!</h1>
-          {messages.map((msg) => (
-            <p key={msg + roomName}>{msg}</p>
-          ))}
+          <Chat socket={socket} roomName={roomName} />
           <button onClick={leaveRoom}>Leave Room</button>
         </div>
       ) : (
