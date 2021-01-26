@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import Chat from "../components/Chat";
+import "../styles/Room.scss";
 
 const ENDPOINT = "http://localhost:4005";
 
@@ -50,17 +51,12 @@ const Room = () => {
     };
   }, [roomName]);
 
-  function leaveRoom(e) {
-    socket.emit("leaving room", roomName);
-  }
-
   return (
     <>
       {connected ? (
-        <div>
+        <div className="room">
           <h1>Welcome to room {roomName}!</h1>
           <Chat socket={socket} roomName={roomName} existingChat={messages} />
-          <button onClick={leaveRoom}>Leave Room</button>
         </div>
       ) : (
         <p>connecting...</p>

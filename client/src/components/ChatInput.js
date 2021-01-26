@@ -2,7 +2,7 @@ import React from "react";
 
 const ChatInput = (props) => {
   return (
-    <form onSubmit={props.onSubmit}>
+    <form className="chat-form" onSubmit={props.onSubmit}>
       <input
         type="text"
         aria-label="Room chat"

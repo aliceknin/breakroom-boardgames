@@ -16,7 +16,7 @@ let roomContents = new Map();
 
 function broadcastToRoom(msg, roomName) {
   if (typeof msg === "string") {
-    msg = { msg, roomName };
+    msg = { msg, roomName, serverUtil: true };
   }
   roomContents[roomName].chat.push(msg);
   io.to(roomName).emit("broadcast", msg);

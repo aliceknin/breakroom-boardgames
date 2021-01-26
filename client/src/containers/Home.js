@@ -17,7 +17,7 @@ const Home = () => {
   }
 
   return (
-    <>
+    <div className="home">
       {submitted ? (
         <Redirect to={`/room/${roomName}`} />
       ) : (
@@ -37,7 +37,7 @@ const Home = () => {
           </form>
         </header>
       )}
-    </>
+    </div>
   );
 };
 

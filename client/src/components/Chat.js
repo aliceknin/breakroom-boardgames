@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
+import "../styles/Chat.scss";
 
 const Chat = ({ socket, roomName, existingChat }) => {
   const [messages, setMessages] = useState([]);
@@ -11,11 +12,14 @@ const Chat = ({ socket, roomName, existingChat }) => {
   }
 
   function handleSendMessage(e) {
+    // another place for input validation!
     e.preventDefault();
-    socket.emit("msg", {
-      msg: currentMessage,
-      roomName,
-    });
+    currentMessage.length > 0 &&
+      socket.emit("msg", {
+        msg: currentMessage,
+        roomName,
+        from: socket.id,
+      });
     setCurrentMessage("");
   }
 
@@ -44,16 +48,24 @@ const Chat = ({ socket, roomName, existingChat }) => {
   }, [socket, existingChat]);
 
   return (
-    <div>
-      {messages.map((msg) => (
-        <ChatMessage key={Math.random()} msg={msg} />
-      ))}
+    <div className="chat">
+      <div className="messages">
+        {/*this extra div allows us to automatically have the 
+           messages scrolled to the bottom using flexbox*/}
+        <div>
+          {messages.map((msg) => (
+            <ChatMessage key={Math.random()} msg={msg} id={socket.id} />
+          ))}
+        </div>
+      </div>
       <ChatInput
         value={currentMessage}
         onChange={handleMessageChange}
         onSubmit={handleSendMessage}
       />
-      <button onClick={clearServerChat}>Clear Chat</button>
+      <button className="clear-chat" onClick={clearServerChat}>
+        Clear Chat
+      </button>
     </div>
   );
 };
