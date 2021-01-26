@@ -12,19 +12,37 @@ const io = require("socket.io")(server, {
 const PORT = process.env.PORT || 4005;
 
 let userCount = 0;
+let roomContents = new Map();
+
+function broadcastToRoom(msg, roomName) {
+  if (typeof msg === "string") {
+    msg = { msg, roomName };
+  }
+  roomContents[roomName].chat.push(msg);
+  io.to(roomName).emit("broadcast", msg);
+}
 
 io.on("connection", (socket) => {
   console.log("a user connected");
   userCount++;
   io.emit("user joined", userCount);
   console.log(io.sockets.adapter.rooms);
-
   socket.emit("got you");
-  socket.on("join room", (room) => {
-    socket.join(room);
-    console.log("joined", room);
-    socket.emit("room joined", room);
-    io.to(room).emit("broadcast", { msg: "A new user joined!", room });
+
+  socket.on("join room", (roomName) => {
+    socket.join(roomName);
+    console.log("joined", roomName);
+
+    if (!roomContents[roomName]) {
+      console.log("new room:", roomName);
+      roomContents[roomName] = {
+        name: roomName,
+        chat: [],
+      };
+    }
+    console.log(roomContents[roomName].chat);
+    socket.emit("room joined", roomContents[roomName]);
+    broadcastToRoom("A new user joined!", roomName);
     console.log(io.sockets.adapter.rooms);
   });
 
@@ -35,14 +53,20 @@ io.on("connection", (socket) => {
   }, 1000);
 
   socket.on("msg", (msg) => {
-    io.to(msg.room).emit("broadcast", msg);
+    roomContents[msg.roomName].chat.push(msg);
+    io.to(msg.roomName).emit("broadcast", msg);
     console.log(msg.msg);
   });
 
-  socket.on("leaving room", (room) => {
-    io.to(room).emit("broadcast", { msg: "A user left.", room });
-    socket.leave(room);
-    console.log("a user left", room);
+  socket.on("clear chat", (roomName) => {
+    roomContents[roomName].chat = [];
+    io.to(roomName).emit("clear chat");
+  });
+
+  socket.on("leaving room", (roomName) => {
+    broadcastToRoom("A user left.", roomName);
+    socket.leave(roomName);
+    console.log("a user left", roomName);
     console.log(io.sockets.adapter.rooms);
   });
 

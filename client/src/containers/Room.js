@@ -8,6 +8,7 @@ const ENDPOINT = "http://localhost:4005";
 const Room = () => {
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
+  const [messages, setMessages] = useState([]);
   const { roomName } = useParams();
 
   useEffect(() => {
@@ -24,10 +25,13 @@ const Room = () => {
     });
 
     // maybe do something with acknowledgement functions instead?
-    socket.on("room joined", (data) => {
-      if (data === roomName) {
+    socket.on("room joined", (room) => {
+      if (room.name === roomName) {
         setConnected(true);
+        room.chat && setMessages(room.chat);
         console.log("joined", roomName);
+      } else {
+        console.log("failed to join", roomName);
       }
     });
 
@@ -55,7 +59,7 @@ const Room = () => {
       {connected ? (
         <div>
           <h1>Welcome to room {roomName}!</h1>
-          <Chat socket={socket} roomName={roomName} />
+          <Chat socket={socket} roomName={roomName} existingChat={messages} />
           <button onClick={leaveRoom}>Leave Room</button>
         </div>
       ) : (

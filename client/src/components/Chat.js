@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 
-const Chat = (props) => {
+const Chat = ({ socket, roomName, existingChat }) => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
 
@@ -12,20 +12,36 @@ const Chat = (props) => {
 
   function handleSendMessage(e) {
     e.preventDefault();
-    props.socket.emit("msg", {
-      room: props.roomName,
-      msg: currentMessage
+    socket.emit("msg", {
+      msg: currentMessage,
+      roomName,
     });
     setCurrentMessage("");
   }
 
+  function clearServerChat() {
+    socket.emit("clear chat", roomName);
+  }
+
   useEffect(() => {
+    setMessages((msgs) => existingChat.concat(msgs));
+
     function receiveMessage(msg) {
       setMessages((msgs) => msgs.concat(msg));
     }
 
-    props.socket.on("broadcast", receiveMessage);
-  }, [props.socket]);
+    function clearLocalChat() {
+      setMessages([]);
+    }
+
+    socket.on("broadcast", receiveMessage);
+    socket.on("clear chat", clearLocalChat);
+
+    return () => {
+      socket.off("broadcast", receiveMessage);
+      socket.off("clear chat", clearLocalChat);
+    };
+  }, [socket, existingChat]);
 
   return (
     <div>
@@ -37,6 +53,7 @@ const Chat = (props) => {
         onChange={handleMessageChange}
         onSubmit={handleSendMessage}
       />
+      <button onClick={clearServerChat}>Clear Chat</button>
     </div>
   );
 };
