@@ -21,7 +21,6 @@ const Room = () => {
         : socketIOClient(ENDPOINT);
     setSocket(socket);
     socket.userName = GenerateName().dashed;
-    console.log("username: ", socket.userName);
 
     socket.on("got you", () => {
       console.log("saw connection");

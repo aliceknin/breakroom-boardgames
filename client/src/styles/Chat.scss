@@ -44,12 +44,14 @@
   }
 
   &.server-util {
+    align-items: center;
     .message {
       background-color: transparent;
       font-style: italic;
       font-size: 14px;
       padding: 0 0.65rem;
       margin: 0.5rem 0;
+      color: hsl(205, 15, 60);
     }
   }
 
@@ -58,6 +60,7 @@
     font-size: 12px;
     width: fit-content;
     margin: 0.5rem 0 3px 0;
+    color: hsl(205, 80, 35);
   }
   .message {
     background-color: white;
