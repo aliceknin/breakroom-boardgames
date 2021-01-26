@@ -18,7 +18,7 @@ const Chat = ({ socket, roomName, existingChat }) => {
       socket.emit("msg", {
         msg: currentMessage,
         roomName,
-        from: socket.id,
+        from: socket.userName,
       });
     setCurrentMessage("");
   }
@@ -54,7 +54,11 @@ const Chat = ({ socket, roomName, existingChat }) => {
            messages scrolled to the bottom using flexbox*/}
         <div>
           {messages.map((msg) => (
-            <ChatMessage key={Math.random()} msg={msg} id={socket.id} />
+            <ChatMessage
+              key={Math.random()}
+              msg={msg}
+              userName={socket.userName}
+            />
           ))}
         </div>
       </div>

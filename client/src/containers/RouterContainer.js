@@ -5,6 +5,8 @@ import App from "../App";
 import Home from "./Home";
 import Room from "./Room";
 
+import "../styles/Global.scss";
+
 const RouterContainer = () => {
   return (
     <Router>

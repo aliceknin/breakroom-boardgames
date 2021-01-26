@@ -17,7 +17,10 @@ let roomContents = new Map();
 function broadcastToRoom(msg, roomName) {
   if (typeof msg === "string") {
     msg = { msg, roomName, serverUtil: true };
+  } else {
+    msg.firstFromSender = roomContents[roomName].prevSender !== msg.from;
   }
+  roomContents[roomName].prevSender = msg.from;
   roomContents[roomName].chat.push(msg);
   io.to(roomName).emit("broadcast", msg);
 }
@@ -29,7 +32,8 @@ io.on("connection", (socket) => {
   console.log(io.sockets.adapter.rooms);
   socket.emit("got you");
 
-  socket.on("join room", (roomName) => {
+  socket.on("join room", (data) => {
+    let roomName = data.roomName;
     socket.join(roomName);
     console.log("joined", roomName);
 
@@ -42,7 +46,7 @@ io.on("connection", (socket) => {
     }
     console.log(roomContents[roomName].chat);
     socket.emit("room joined", roomContents[roomName]);
-    broadcastToRoom("A new user joined!", roomName);
+    broadcastToRoom(`${data.userName} joined ${roomName}!`, roomName);
     console.log(io.sockets.adapter.rooms);
   });
 
@@ -53,8 +57,7 @@ io.on("connection", (socket) => {
   }, 1000);
 
   socket.on("msg", (msg) => {
-    roomContents[msg.roomName].chat.push(msg);
-    io.to(msg.roomName).emit("broadcast", msg);
+    broadcastToRoom(msg, msg.roomName);
     console.log(msg.msg);
   });
 
@@ -63,10 +66,10 @@ io.on("connection", (socket) => {
     io.to(roomName).emit("clear chat");
   });
 
-  socket.on("leaving room", (roomName) => {
-    broadcastToRoom("A user left.", roomName);
-    socket.leave(roomName);
-    console.log("a user left", roomName);
+  socket.on("leaving room", (data) => {
+    broadcastToRoom(`${data.userName} left.`, data.roomName);
+    socket.leave(data.roomName);
+    console.log("a user left", data.roomName);
     console.log(io.sockets.adapter.rooms);
   });
 

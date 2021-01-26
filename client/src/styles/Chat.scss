@@ -36,21 +36,35 @@
 }
 
 .chat-message {
-  background-color: white;
-  padding: 0.65em;
-  border-radius: 7px;
-  width: fit-content;
-
-  &.server-util {
-    background-color: transparent;
-    font-style: italic;
-    font-size: 14px;
-    padding: 0 0.65em;
-  }
+  display: flex;
+  flex-direction: column;
 
   &.from-me {
-    margin-right: 0;
-    margin-left: auto;
+    align-items: flex-end;
+  }
+
+  &.server-util {
+    .message {
+      background-color: transparent;
+      font-style: italic;
+      font-size: 14px;
+      padding: 0 0.65rem;
+      margin: 0.5rem 0;
+    }
+  }
+
+  .username {
+    margin: 0;
+    font-size: 12px;
+    width: fit-content;
+    margin: 0.5rem 0 3px 0;
+  }
+  .message {
+    background-color: white;
+    padding: 0.65em;
+    border-radius: 7px;
+    margin: 0 0 5px 0;
+    width: fit-content;
   }
 }
 

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import socketIOClient from "socket.io-client";
+import GenerateName from "project-name-generator";
 import Chat from "../components/Chat";
 import "../styles/Room.scss";
 
@@ -19,10 +20,12 @@ const Room = () => {
         ? socketIOClient()
         : socketIOClient(ENDPOINT);
     setSocket(socket);
+    socket.userName = GenerateName().dashed;
+    console.log("username: ", socket.userName);
 
     socket.on("got you", () => {
       console.log("saw connection");
-      socket.emit("join room", roomName);
+      socket.emit("join room", { roomName, userName: socket.userName });
     });
 
     // maybe do something with acknowledgement functions instead?
@@ -38,9 +41,13 @@ const Room = () => {
 
     const cleanup = () => {
       console.log("disconnecting");
-      socket.emit("leaving room", roomName, () => {
-        socket.disconnect();
-      });
+      socket.emit(
+        "leaving room",
+        { roomName, userName: socket.userName },
+        () => {
+          socket.disconnect();
+        }
+      );
     };
 
     window.addEventListener("beforeunload", cleanup);
@@ -55,7 +62,10 @@ const Room = () => {
     <>
       {connected ? (
         <div className="room">
-          <h1>Welcome to room {roomName}!</h1>
+          <h1>
+            Welcome to room {roomName}
+            {socket.userName && ", " + socket.userName}!
+          </h1>
           <Chat socket={socket} roomName={roomName} existingChat={messages} />
         </div>
       ) : (
