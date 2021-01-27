@@ -31,7 +31,7 @@ const Chat = ({ socket, roomName, existingChat, clearExistingChat }) => {
     console.log("checking for new chat history");
 
     if (existingChat.length > 0) {
-      console.log("adding new chat history", existingChat);
+      console.log("adding new chat history");
       setMessages(existingChat);
       // .concat(
       //   { msg: "And that's what you missed on Glee.", serverUtil: true },

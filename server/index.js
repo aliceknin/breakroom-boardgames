@@ -12,7 +12,8 @@ const io = require("socket.io")(server, {
 const PORT = process.env.PORT || 4005;
 
 let userCount = 0;
-let roomContents = new Map();
+let roomContents = {};
+let userNames = {};
 
 function ensureRoom(roomName) {
   roomContents[roomName] = roomContents[roomName] || {
@@ -33,25 +34,33 @@ function broadcastToRoom(msg, roomName) {
   io.to(roomName).emit("broadcast", msg);
 }
 
+function logRoom(roomName) {
+  if (io.sockets.adapter.rooms.get(roomName)) {
+    console.log(roomName, "=> [");
+    for (let id of io.sockets.adapter.rooms.get(roomName)) {
+      console.log(" ", userNames[id] || id);
+    }
+    console.log("]");
+  }
+}
+
 io.on("connection", (socket) => {
   console.log("a user connected");
   userCount++;
   io.emit("user joined", userCount);
-  console.log(io.sockets.adapter.rooms);
 
-  socket.on("join room", (data, ack) => {
-    let roomName = data.roomName;
-    console.log("attemping to join", roomName, socket.rooms);
+  socket.on("join room", ({ roomName, userName }, ack) => {
+    userNames[socket.id] = userName;
     if (!socket.rooms.has(roomName)) {
       socket.join(roomName);
-      console.log(`${data.userName || ""} joined`, roomName);
+      console.log(`${userName || ""} joined`, roomName);
 
       ensureRoom(roomName);
       console.log(roomContents[roomName].chat.map((msg) => msg.msg));
 
       ack && ack(roomContents[roomName]);
-      broadcastToRoom(`${data.userName} joined ${roomName}!`, roomName);
-      console.log(io.sockets.adapter.rooms);
+      broadcastToRoom(`${userName} joined ${roomName}!`, roomName);
+      logRoom(roomName);
     }
   });
 
@@ -71,12 +80,12 @@ io.on("connection", (socket) => {
     io.to(roomName).emit("clear chat");
   });
 
-  socket.on("leaving room", (data, ack) => {
-    socket.leave(data.roomName);
+  socket.on("leaving room", ({ roomName, userName }, ack) => {
+    socket.leave(roomName);
     ack && ack();
-    broadcastToRoom(`${data.userName} left.`, data.roomName);
-    console.log(`${data.userName || "A user"} left`, data.roomName);
-    console.log(io.sockets.adapter.rooms);
+    broadcastToRoom(`${userName} left.`, roomName);
+    console.log(`${userName || "A user"} left`, roomName);
+    logRoom(roomName);
   });
 
   socket.on("disconnect", () => {

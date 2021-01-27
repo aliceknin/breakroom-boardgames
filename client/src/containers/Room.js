@@ -22,7 +22,7 @@ const Room = () => {
     setSocket(socket);
     socket.userName = GenerateName().dashed;
 
-    socket.on("connect", () => {
+    const onConnect = () => {
       console.log("saw connection");
       socket.emit(
         "join room",
@@ -37,9 +37,10 @@ const Room = () => {
           }
         }
       );
-    });
+    };
 
     const cleanup = () => {
+      socket.off("connect", onConnect);
       socket.emit(
         "leaving room",
         { roomName, userName: socket.userName },
@@ -56,6 +57,7 @@ const Room = () => {
       cleanup();
     };
 
+    socket.on("connect", onConnect);
     window.addEventListener("beforeunload", cleanupBeforeUnload);
 
     return () => {
