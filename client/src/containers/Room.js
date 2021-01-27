@@ -22,38 +22,46 @@ const Room = () => {
     setSocket(socket);
     socket.userName = GenerateName().dashed;
 
-    socket.on("got you", () => {
+    socket.on("connect", () => {
       console.log("saw connection");
-      socket.emit("join room", { roomName, userName: socket.userName });
-    });
-
-    // maybe do something with acknowledgement functions instead?
-    socket.on("room joined", (room) => {
-      if (room.name === roomName) {
-        setConnected(true);
-        room.chat && setMessages(room.chat);
-        console.log("joined", roomName);
-      } else {
-        console.log("failed to join", roomName);
-      }
+      socket.emit(
+        "join room",
+        { roomName, userName: socket.userName },
+        (room) => {
+          if (room.name === roomName) {
+            setConnected(true);
+            room.chat && setMessages(room.chat);
+            console.log("joined", roomName);
+          } else {
+            console.log("failed to join", roomName);
+          }
+        }
+      );
     });
 
     const cleanup = () => {
-      console.log("disconnecting");
       socket.emit(
         "leaving room",
         { roomName, userName: socket.userName },
         () => {
+          console.log("disconnecting");
           socket.disconnect();
+          setConnected(false);
         }
       );
     };
 
-    window.addEventListener("beforeunload", cleanup);
+    const cleanupBeforeUnload = () => {
+      console.log("cleaning up before unload");
+      cleanup();
+    };
+
+    window.addEventListener("beforeunload", cleanupBeforeUnload);
 
     return () => {
+      console.log("unmounting...");
       cleanup();
-      window.removeEventListener("beforeunload", cleanup);
+      window.removeEventListener("beforeunload", cleanupBeforeUnload);
     };
   }, [roomName]);
 
@@ -65,7 +73,12 @@ const Room = () => {
             Welcome to room {roomName}
             {socket.userName && ", " + socket.userName}!
           </h1>
-          <Chat socket={socket} roomName={roomName} existingChat={messages} />
+          <Chat
+            socket={socket}
+            roomName={roomName}
+            existingChat={messages}
+            clearExistingChat={() => setMessages([])}
+          />
         </div>
       ) : (
         <p>connecting...</p>

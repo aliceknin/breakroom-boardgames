@@ -3,7 +3,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import "../styles/Chat.scss";
 
-const Chat = ({ socket, roomName, existingChat }) => {
+const Chat = ({ socket, roomName, existingChat, clearExistingChat }) => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
 
@@ -28,24 +28,44 @@ const Chat = ({ socket, roomName, existingChat }) => {
   }
 
   useEffect(() => {
-    setMessages((msgs) => existingChat.concat(msgs));
+    console.log("checking for new chat history");
 
+    if (existingChat.length > 0) {
+      console.log("adding new chat history", existingChat);
+      setMessages(existingChat);
+      // .concat(
+      //   { msg: "And that's what you missed on Glee.", serverUtil: true },
+      //   // msgs,
+      //   { msg: "Enjoy the ride!", serverUtil: true }
+      // )
+      clearExistingChat();
+    }
+  }, [existingChat, clearExistingChat]);
+
+  useEffect(() => {
+    if (!socket) {
+      console.log("no socket on which to set listeners :(");
+      return () => {};
+    }
+    console.log("registering listeners...");
     function receiveMessage(msg) {
       setMessages((msgs) => msgs.concat(msg));
     }
 
     function clearLocalChat() {
       setMessages([]);
+      clearExistingChat();
     }
 
     socket.on("broadcast", receiveMessage);
     socket.on("clear chat", clearLocalChat);
 
     return () => {
+      console.log("removing listeners...");
       socket.off("broadcast", receiveMessage);
       socket.off("clear chat", clearLocalChat);
     };
-  }, [socket, existingChat]);
+  }, [socket, clearExistingChat]);
 
   return (
     <div className="chat">

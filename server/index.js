@@ -14,7 +14,15 @@ const PORT = process.env.PORT || 4005;
 let userCount = 0;
 let roomContents = new Map();
 
+function ensureRoom(roomName) {
+  roomContents[roomName] = roomContents[roomName] || {
+    name: roomName,
+    chat: [{ msg: `Welcome to ${roomName}!`, serverUtil: true }],
+  };
+}
+
 function broadcastToRoom(msg, roomName) {
+  ensureRoom(roomName);
   if (typeof msg === "string") {
     msg = { msg, roomName, serverUtil: true };
   } else {
@@ -30,24 +38,21 @@ io.on("connection", (socket) => {
   userCount++;
   io.emit("user joined", userCount);
   console.log(io.sockets.adapter.rooms);
-  socket.emit("got you");
 
-  socket.on("join room", (data) => {
+  socket.on("join room", (data, ack) => {
     let roomName = data.roomName;
-    socket.join(roomName);
-    console.log("joined", roomName);
+    console.log("attemping to join", roomName, socket.rooms);
+    if (!socket.rooms.has(roomName)) {
+      socket.join(roomName);
+      console.log(`${data.userName || ""} joined`, roomName);
 
-    if (!roomContents[roomName]) {
-      console.log("new room:", roomName);
-      roomContents[roomName] = {
-        name: roomName,
-        chat: [],
-      };
+      ensureRoom(roomName);
+      console.log(roomContents[roomName].chat.map((msg) => msg.msg));
+
+      ack && ack(roomContents[roomName]);
+      broadcastToRoom(`${data.userName} joined ${roomName}!`, roomName);
+      console.log(io.sockets.adapter.rooms);
     }
-    console.log(roomContents[roomName].chat);
-    socket.emit("room joined", roomContents[roomName]);
-    broadcastToRoom(`${data.userName} joined ${roomName}!`, roomName);
-    console.log(io.sockets.adapter.rooms);
   });
 
   let secondsSinceConnection = 0;
@@ -66,10 +71,11 @@ io.on("connection", (socket) => {
     io.to(roomName).emit("clear chat");
   });
 
-  socket.on("leaving room", (data) => {
-    broadcastToRoom(`${data.userName} left.`, data.roomName);
+  socket.on("leaving room", (data, ack) => {
     socket.leave(data.roomName);
-    console.log("a user left", data.roomName);
+    ack && ack();
+    broadcastToRoom(`${data.userName} left.`, data.roomName);
+    console.log(`${data.userName || "A user"} left`, data.roomName);
     console.log(io.sockets.adapter.rooms);
   });
 
