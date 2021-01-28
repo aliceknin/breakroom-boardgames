@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import GenerateName from "project-name-generator";
 import Chat from "../components/Chat";
+import Window from "../components/Window";
 import "../styles/Room.scss";
 
 const ENDPOINT = "http://localhost:4005";
@@ -12,6 +13,7 @@ const Room = () => {
   const [connected, setConnected] = useState(false);
   const [messages, setMessages] = useState([]);
   const { roomName } = useParams();
+  const [mode, setMode] = useState("overlay");
 
   useEffect(() => {
     console.log("trying to connect...");
@@ -70,17 +72,21 @@ const Room = () => {
   return (
     <>
       {connected ? (
-        <div className="room">
-          <h1>
-            Welcome to room {roomName}
-            {socket.userName && ", " + socket.userName}!
-          </h1>
-          <Chat
-            socket={socket}
-            roomName={roomName}
-            existingChat={messages}
-            clearExistingChat={() => setMessages([])}
-          />
+        <div className={"room " + mode}>
+          <div className="content-container">
+            <h1>
+              Welcome to room {roomName}
+              {socket.userName && ", " + socket.userName}!
+            </h1>
+          </div>
+          <Window mode={mode} setMode={setMode}>
+            <Chat
+              socket={socket}
+              roomName={roomName}
+              existingChat={messages}
+              clearExistingChat={() => setMessages([])}
+            />
+          </Window>
         </div>
       ) : (
         <p>connecting...</p>
