@@ -4,6 +4,11 @@ import "../styles/Window.scss";
 const Window = ({ children, mode, setMode }) => {
   const [open, setOpen] = useState(true);
 
+  function setViewMode(mode) {
+    setOpen(true);
+    setMode(mode);
+  }
+
   return (
     <div className={"window " + mode + (open ? " open" : " closed")}>
       <div className="bar">
@@ -16,19 +21,22 @@ const Window = ({ children, mode, setMode }) => {
             {open ? "_" : "^"}
           </button>
           {mode !== "overlay" && (
-            <button className="overlay" onClick={() => setMode("overlay")}>
-              <div>O</div>
+            <button className="overlay" onClick={() => setViewMode("overlay")}>
+              O
             </button>
           )}
           {mode !== "dock-side" && (
-            <button className="dock-side" onClick={() => setMode("dock-side")}>
+            <button
+              className="dock-side"
+              onClick={() => setViewMode("dock-side")}
+            >
               _|
             </button>
           )}
           {mode !== "dock-bottom" && (
             <button
               className="dock-bottom"
-              onClick={() => setMode("dock-bottom")}
+              onClick={() => setViewMode("dock-bottom")}
             >
               |_|
             </button>

@@ -1,7 +1,8 @@
 .window {
-  width: 300px;
+  min-width: 250px;
 
   &.dock-side {
+    max-width: 250px;
     display: flex;
     flex-direction: column;
     height: 100vh;
@@ -27,13 +28,13 @@
   }
 
   &.overlay {
+    width: 300px;
     position: absolute;
     bottom: 0;
     right: 20px;
     border-radius: 7px 7px 0 0;
     overflow: hidden;
-    box-shadow: 0px 15px 25px hsla(0, 0, 0, 0.15),
-      0px 5px 5px hsla(0, 0, 0, 0.05);
+    box-shadow: 0px 5px 25px hsla(0, 0, 0, 0.5), 0px 5px 5px hsla(0, 0, 0, 0.05);
     .content-open {
       height: 360px;
     }
@@ -54,6 +55,7 @@
     }
 
     button {
+      font-size: 15px;
       background-color: transparent;
       border: none;
       margin: 0;

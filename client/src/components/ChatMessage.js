@@ -5,6 +5,8 @@ const ChatMessage = ({ msg, userName }) => {
     let className = "chat-message";
     if (msg.serverUtil) {
       className += " server-util";
+    } else {
+      className += " from-person";
     }
     if (msg.from === userName) {
       className += " from-me";
