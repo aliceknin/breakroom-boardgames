@@ -1,0 +1,78 @@
+.twixt-board {
+  background-color: cornsilk;
+  border-radius: 10px;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  grid-template-rows: repeat(24, 1fr);
+  place-items: stretch;
+  column-gap: 5px;
+  row-gap: 5px;
+  width: 80vmin;
+  height: 80vmin;
+  padding: 1em;
+  box-sizing: border-box;
+  box-shadow: 0px 7px 15px hsla(0, 0, 0, 0.3),
+    inset 0px -3px 2px hsla(0, 0, 0, 0.15),
+    inset 0 5px 3px hsla(55, 70, 98, 0.8);
+  margin-bottom: 1em;
+
+  #coords-1-1,
+  #coords-1-24,
+  #coords-24-1,
+  #coords-24-24 {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
+  .twixt-hole {
+    font-size: 2px;
+    text-align: center;
+    color: transparent;
+    border-radius: 50%;
+    &:hover {
+      background-color: turquoise;
+    }
+    &.empty {
+      background-color: grey;
+      border: solid 2px cornsilk;
+      box-sizing: border-box;
+      box-shadow: inset 0px 2px 2px hsla(0, 0, 0, 0.5);
+    }
+    &.red {
+      background-color: red;
+      box-shadow: 0px 2px 2px hsla(0, 0, 0, 0.3),
+        inset 0px -1px 0px hsla(20, 80, 95, 0.5);
+    }
+    &.black {
+      background-color: black;
+      box-shadow: 0px 2px 2px hsla(0, 0, 0, 0.5),
+        inset 0px -1px 0px hsla(0, 0, 95, 0.3);
+    }
+    &.possible-link {
+      background-color: blueviolet;
+    }
+  }
+}
+
+.twixt-container {
+  align-self: center;
+  button {
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-weight: bold;
+    color: hsl(0, 0, 40);
+    padding: 1em;
+    border: none;
+    border-radius: 7px;
+    margin: 0.5em;
+    background-color: cornsilk;
+    box-shadow: inset 0px -2px 1px hsla(0, 0, 0, 0.15),
+      inset 0px 2px 1px hsla(55, 70, 98, 0.8), 0px 3px 5px hsla(0, 0, 0, 0.15);
+    &:hover,
+    &:focus {
+      color: white;
+      background-color: hsl(20, 80, 50);
+      box-shadow: 0 5px 15px hsla(0, 0, 0, 0.15);
+    }
+  }
+}
