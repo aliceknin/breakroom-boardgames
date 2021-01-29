@@ -51,6 +51,7 @@ io.on("connection", (socket) => {
 
   socket.on("join room", ({ roomName, userName }, ack) => {
     userNames[socket.id] = userName;
+    socket.userName = userName;
     if (!socket.rooms.has(roomName)) {
       socket.join(roomName);
 
@@ -88,12 +89,15 @@ io.on("connection", (socket) => {
     io.to(roomName).emit("clear chat");
   });
 
-  socket.on("leaving room", ({ roomName, userName }, ack) => {
-    socket.leave(roomName);
-    ack && ack();
-    broadcastToRoom(`${userName} left.`, roomName);
-    console.log(`${userName || "A user"} left`, roomName);
-    logRoom(roomName);
+  socket.on("disconnecting", () => {
+    console.log(
+      socket.userName || socket.id,
+      "disconnecting from",
+      socket.rooms
+    );
+    for (let roomName of socket.rooms) {
+      broadcastToRoom(`${socket.userName || socket.id} left.`, roomName);
+    }
   });
 
   socket.on("disconnect", () => {

@@ -42,14 +42,8 @@ const Room = () => {
 
     const cleanup = () => {
       socket.off("connect", onConnect);
-      socket.emit(
-        "leaving room",
-        { roomName, userName: socket.userName },
-        () => {
-          console.log("disconnecting");
-          socket.disconnect();
-        }
-      );
+      console.log("disconnecting");
+      socket.disconnect();
     };
 
     const cleanupBeforeUnload = () => {
@@ -76,6 +70,8 @@ const Room = () => {
               Welcome to room {roomName}
               {socket.userName && ", " + socket.userName}!
             </h1>
+            <button onClick={() => socket.disconnect()}>Disconnect</button>
+            <button onClick={() => socket.connect()}>Connect</button>
           </div>
           <Window mode={mode} setMode={setMode}>
             <Chat socket={socket} roomName={roomName} />
