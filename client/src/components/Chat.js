@@ -3,7 +3,7 @@ import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
 import "../styles/Chat.scss";
 
-const Chat = ({ socket, roomName, existingChat, clearExistingChat }) => {
+const Chat = ({ socket, roomName }) => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
 
@@ -28,44 +28,36 @@ const Chat = ({ socket, roomName, existingChat, clearExistingChat }) => {
   }
 
   useEffect(() => {
-    console.log("checking for new chat history");
-
-    if (existingChat.length > 0) {
-      console.log("adding new chat history");
-      setMessages(existingChat);
-      // .concat(
-      //   { msg: "And that's what you missed on Glee.", serverUtil: true },
-      //   // msgs,
-      //   { msg: "Enjoy the ride!", serverUtil: true }
-      // )
-      clearExistingChat();
-    }
-  }, [existingChat, clearExistingChat]);
+    console.log("chat joined");
+    socket.emit("chat joined", roomName);
+  }, [socket, roomName]);
 
   useEffect(() => {
-    if (!socket) {
-      console.log("no socket on which to set listeners :(");
-      return () => {};
-    }
-    console.log("registering listeners...");
+    console.log("registering chat listeners...");
     function receiveMessage(msg) {
       setMessages((msgs) => msgs.concat(msg));
     }
 
+    function replaceMessages(msgs) {
+      setMessages(msgs);
+      console.log("replacing messages");
+    }
+
     function clearLocalChat() {
       setMessages([]);
-      clearExistingChat();
     }
 
     socket.on("broadcast", receiveMessage);
+    socket.on("replace msgs", replaceMessages);
     socket.on("clear chat", clearLocalChat);
 
     return () => {
-      console.log("removing listeners...");
+      console.log("removing chat listeners...");
       socket.off("broadcast", receiveMessage);
+      socket.off("replace msgs", replaceMessages);
       socket.off("clear chat", clearLocalChat);
     };
-  }, [socket, clearExistingChat]);
+  }, [socket]);
 
   return (
     <div className="chat">

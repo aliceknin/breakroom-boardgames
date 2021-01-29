@@ -11,7 +11,6 @@ const ENDPOINT = "http://localhost:4005";
 const Room = () => {
   const [socket, setSocket] = useState(null);
   const [connected, setConnected] = useState(false);
-  const [messages, setMessages] = useState([]);
   const { roomName } = useParams();
   const [mode, setMode] = useState("overlay");
 
@@ -32,8 +31,8 @@ const Room = () => {
         (room) => {
           if (room.name === roomName) {
             setConnected(true);
-            room.chat && setMessages(room.chat);
-            console.log("joined", roomName);
+            socket.emit("room joined", { roomName, userName: socket.userName });
+            console.log("room joined: ", roomName);
           } else {
             console.log("failed to join", roomName);
           }
@@ -49,7 +48,6 @@ const Room = () => {
         () => {
           console.log("disconnecting");
           socket.disconnect();
-          setConnected(false);
         }
       );
     };
@@ -80,12 +78,7 @@ const Room = () => {
             </h1>
           </div>
           <Window mode={mode} setMode={setMode}>
-            <Chat
-              socket={socket}
-              roomName={roomName}
-              existingChat={messages}
-              clearExistingChat={() => setMessages([])}
-            />
+            <Chat socket={socket} roomName={roomName} />
           </Window>
         </div>
       ) : (

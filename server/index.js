@@ -53,15 +53,23 @@ io.on("connection", (socket) => {
     userNames[socket.id] = userName;
     if (!socket.rooms.has(roomName)) {
       socket.join(roomName);
-      console.log(`${userName || ""} joined`, roomName);
 
       ensureRoom(roomName);
-      console.log(roomContents[roomName].chat.map((msg) => msg.msg));
 
       ack && ack(roomContents[roomName]);
-      broadcastToRoom(`${userName} joined ${roomName}!`, roomName);
+      socket.emit("replace msgs", roomContents[roomName].chat);
       logRoom(roomName);
     }
+  });
+
+  socket.on("room joined", ({ roomName, userName }) => {
+    console.log(`${userName || ""} joined`, roomName);
+    broadcastToRoom(`${userName} joined ${roomName}!`, roomName);
+  });
+
+  socket.on("chat joined", (roomName) => {
+    console.log(roomContents[roomName].chat.map((msg) => msg.msg));
+    socket.emit("replace msgs", roomContents[roomName].chat);
   });
 
   let secondsSinceConnection = 0;
