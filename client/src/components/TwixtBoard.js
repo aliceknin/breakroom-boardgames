@@ -60,7 +60,7 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     if (secondLinkClick) {
       if (canLink(firstPeg, { row, col })) {
         b = exitLinkMode(b);
-        b = createLink(firstPeg, { row, col });
+        b = createLink(b, firstPeg, { row, col });
         makeMove(b);
       } else {
         console.log("couldn't link", firstPeg, "to", { row, col });
@@ -153,6 +153,139 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     return false;
   }
 
+  function hasLinkWhere(x, y, xyConditions) {
+    let links = board[y][x].links;
+
+    for (let link of links) {
+      if (xyConditions(link.col, link.row)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function linkIsBlocked(startPegCoords, endPegCoords) {
+    let minXPeg, maxXPeg, minX, maxX, minY, maxY;
+    if (startPegCoords.col < endPegCoords.col) {
+      minXPeg = startPegCoords;
+      maxXPeg = endPegCoords;
+    } else {
+      maxXPeg = startPegCoords;
+      minXPeg = endPegCoords;
+    }
+    minX = minXPeg.col;
+    maxX = maxXPeg.col;
+    console.log("minX:", minX, "maxX:", maxX);
+    if (
+      Math.abs(startPegCoords.col - endPegCoords.col) <
+      Math.abs(startPegCoords.row - endPegCoords.row)
+    ) {
+      let midY;
+      if (minXPeg.row < maxXPeg.row) {
+        /*          \
+                     \
+                      \
+                       \
+                        \
+        */
+        minY = minXPeg.row;
+        maxY = maxXPeg.row;
+        midY = minY + 1;
+        console.log("minY:", minY, "midY;", midY, "maxY:", maxY);
+        return (
+          hasLinkWhere(minX - 1, midY, (x, y) => {
+            return x === maxX && y === minY;
+          }) ||
+          hasLinkWhere(minX, midY, (x, y) => {
+            return x > minX && y <= maxY;
+          }) ||
+          hasLinkWhere(maxX, midY, (x, y) => {
+            return x < maxX && y >= minY;
+          }) ||
+          hasLinkWhere(minX, maxY, (x, y) => {
+            return x > minX && y < maxY;
+          })
+        );
+      } else {
+        /*
+                        /
+                       /
+                      /
+                     /
+                    /
+        */
+        minY = maxXPeg.row;
+        maxY = minXPeg.row;
+        midY = minY + 1;
+        console.log("minY:", minY, "midY;", midY, "maxY:", maxY);
+        return (
+          hasLinkWhere(minX - 1, midY, (x, y) => {
+            return x === maxX && y === maxY;
+          }) ||
+          hasLinkWhere(minX, midY, (x, y) => {
+            return x > minX && y >= minY;
+          }) ||
+          hasLinkWhere(maxX, midY, (x, y) => {
+            return x < maxX && y <= maxY;
+          }) ||
+          hasLinkWhere(minX, minY, (x, y) => {
+            return x > minX && y > minY;
+          })
+        );
+      }
+    } else {
+      let midX = minX + 1;
+      if (minXPeg.row < maxXPeg.row) {
+        /*
+                ' .
+                    ' .
+                        ' .
+        */
+        minY = minXPeg.row;
+        maxY = maxXPeg.row;
+        console.log("minY:", minY, "midX:", midX, "maxY:", maxY);
+        return (
+          hasLinkWhere(midX, minY - 1, (x, y) => {
+            return x === minX && y === maxY;
+          }) ||
+          hasLinkWhere(midX, minY, (x, y) => {
+            return x <= maxX && y > minY;
+          }) ||
+          hasLinkWhere(midX, maxY, (x, y) => {
+            return x >= minX && y < maxY;
+          }) ||
+          hasLinkWhere(maxX, minY, (x, y) => {
+            return x < maxX && y > minY;
+          })
+        );
+      } else {
+        /*
+                         . '
+                     . '
+                 . '
+        */
+        minY = maxXPeg.row;
+        maxY = minXPeg.row;
+        console.log("minY:", minY, "midX:", midX, "maxY:", maxY);
+        return (
+          hasLinkWhere(midX, minY - 1, (x, y) => {
+            return x === maxX && y === maxY;
+          }) ||
+          hasLinkWhere(midX, minY, (x, y) => {
+            return x >= minX && y > minY;
+          }) ||
+          hasLinkWhere(midX, maxY, (x, y) => {
+            return x <= maxX && y < maxY;
+          }) ||
+          hasLinkWhere(minX, minY, (x, y) => {
+            return x > minX && y > minY;
+          })
+        );
+      }
+    }
+  }
+
   function canLink(startPegCoords, endPegCoords, b) {
     b = b || board;
     let startPeg = b[startPegCoords.row][startPegCoords.col];
@@ -165,7 +298,8 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     return (
       startPeg.color === endPeg.color &&
       !hasLink(startPeg.links, endPegCoords) &&
-      hasLink(startPeg.possibleLinks, endPegCoords)
+      hasLink(startPeg.possibleLinks, endPegCoords) &&
+      !linkIsBlocked(startPegCoords, endPegCoords)
     );
   }
 
