@@ -156,6 +156,12 @@
 
 .twixt-container {
   align-self: center;
+
+  h3 {
+    text-align: center;
+    text-transform: capitalize;
+    margin-top: 0;
+  }
   button {
     text-transform: uppercase;
     letter-spacing: 0.05em;

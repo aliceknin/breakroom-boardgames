@@ -71,10 +71,10 @@ const Room = () => {
               Welcome to room {roomName}
               {socket.userName && ", " + socket.userName}!
             </h1>
-            <div className="buttons-container">
+            {/* <div className="buttons-container">
               <button onClick={() => socket.disconnect()}>Disconnect</button>
               <button onClick={() => socket.connect()}>Connect</button>
-            </div>
+            </div> */}
             <TwixtBoard socket={socket} roomName={roomName} />
           </div>
           <Window mode={mode} setMode={setMode}>

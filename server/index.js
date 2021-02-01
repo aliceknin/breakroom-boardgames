@@ -74,11 +74,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("game joined", (roomName) => {
-    console.log(
-      roomContents[roomName].gameState
-        ? roomContents[roomName].gameState[0]
-        : "no game state yet"
-    );
+    // console.log(
+    //   roomContents[roomName].gameState
+    //     ? roomContents[roomName].gameState[0]
+    //     : "no game state yet"
+    // );
     socket.emit("game state change", roomContents[roomName].gameState);
   });
 

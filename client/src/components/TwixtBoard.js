@@ -396,19 +396,16 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
   }
 
   function isPossiblePeg(hole) {
-    if (linkMode) {
-      if (secondLinkClick) {
-        return hole.isPossibleLink;
-      } else {
-        return isCurrentPlayerColor(hole.color);
-      }
+    if (secondLinkClick) {
+      return hole.isPossibleLink;
     } else {
-      return hole.color === "empty";
+      return hole.color === "empty" || isCurrentPlayerColor(hole.color);
     }
   }
 
   return (
     <div className="twixt-container">
+      <h3>Current Player: {getCurrentPlayerColor()}</h3>
       <div className="twixt-board" onClick={handleHoleClick}>
         {board.map((row, i) =>
           row.map((hole, j) => (
@@ -429,13 +426,8 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         <div className="threshold black bottom">.</div>
         <div className="threshold red right">.</div>
       </div>
-      <button onClick={() => setCurrentPlayer((p) => !p)}>
-        {getCurrentPlayerColor()}
-      </button>
       <button onClick={resetBoard}>Reset Board</button>
-      <button onClick={() => setLinkMode((m) => !m)} disabled={secondLinkClick}>
-        {linkMode ? "Peg Mode" : "Link Mode"}
-      </button>
+      <button onClick={() => setCurrentPlayer((p) => !p)}>Switch Player</button>
       {secondLinkClick && (
         <button onClick={() => setBoard(exitLinkMode())}>Cancel Link</button>
       )}
