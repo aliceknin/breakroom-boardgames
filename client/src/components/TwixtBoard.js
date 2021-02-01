@@ -155,7 +155,7 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     let possibleLinks = [];
 
     for (let link of calculatedLinks) {
-      if (link.row > 0 && link.row < 24 && link.col >= 0 && link.col < 24) {
+      if (link.row >= 0 && link.row < 24 && link.col >= 0 && link.col < 24) {
         possibleLinks.push(link);
       }
     }
@@ -214,8 +214,8 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         midY = minY + 1;
         console.log("minY:", minY, "midY;", midY, "maxY:", maxY);
         return (
-          hasLinkWhere(minX - 1, midY, (x, y) => {
-            return x === maxX && y === minY;
+          hasLinkWhere(maxX, minY, (x, y) => {
+            return x < maxX && y > minY;
           }) ||
           hasLinkWhere(minX, midY, (x, y) => {
             return x > minX && y <= maxY;
@@ -240,8 +240,8 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         midY = minY + 1;
         console.log("minY:", minY, "midY;", midY, "maxY:", maxY);
         return (
-          hasLinkWhere(minX - 1, midY, (x, y) => {
-            return x === maxX && y === maxY;
+          hasLinkWhere(maxX, maxY, (x, y) => {
+            return x < maxX && y < maxY;
           }) ||
           hasLinkWhere(minX, midY, (x, y) => {
             return x > minX && y >= minY;
@@ -266,8 +266,8 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         maxY = maxXPeg.row;
         console.log("minY:", minY, "midX:", midX, "maxY:", maxY);
         return (
-          hasLinkWhere(midX, minY - 1, (x, y) => {
-            return x === minX && y === maxY;
+          hasLinkWhere(minX, maxY, (x, y) => {
+            return x > minX && y < maxY;
           }) ||
           hasLinkWhere(midX, minY, (x, y) => {
             return x <= maxX && y > minY;
@@ -289,8 +289,8 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         maxY = minXPeg.row;
         console.log("minY:", minY, "midX:", midX, "maxY:", maxY);
         return (
-          hasLinkWhere(midX, minY - 1, (x, y) => {
-            return x === maxX && y === maxY;
+          hasLinkWhere(maxX, maxY, (x, y) => {
+            return x < maxX && y < maxY;
           }) ||
           hasLinkWhere(midX, minY, (x, y) => {
             return x >= minX && y > minY;
