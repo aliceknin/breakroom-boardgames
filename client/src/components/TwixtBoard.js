@@ -48,52 +48,72 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     let b = [...board];
     let row = Number(hole.dataset.row);
     let col = Number(hole.dataset.col);
+    hole = b[row][col];
 
     if (linkMode) {
-      handleLinkMode(b, row, col);
+      console.log("link mode");
+      handleLinkMode(b, row, col, hole.color);
     } else {
-      handlePegMode(b, row, col);
+      console.log("peg mode");
+      handlePegMode(b, row, col, hole.color);
     }
   }
 
-  function handleLinkMode(b, row, col) {
+  function handlePegMode(b, row, col, color) {
+    if (color === "empty") {
+      b[row][col].color = getCurrentPlayerColor();
+      makeMove(b);
+    } else if (isCurrentPlayerColor(color)) {
+      console.log("switching to link mode");
+      setLinkMode(true);
+      startLink(b, row, col);
+    }
+  }
+
+  function handleLinkMode(b, row, col, color) {
     if (secondLinkClick) {
       if (canLink(firstPeg, { row, col })) {
-        b = exitLinkMode(b);
-        b = createLink(b, firstPeg, { row, col });
-        makeMove(b);
+        completeLink(b, row, col);
       } else {
         console.log("couldn't link", firstPeg, "to", { row, col });
       }
     } else {
-      // if ((hole.color === "red") === currentPlayer) {
-      console.log(`set first peg: (${row},${col})`);
-      setFirstPeg({ row, col });
-      setSecondLinkClick(true);
-      setBoard(togglePossibleLinks(row, col, b, true));
-      // }
+      if (isCurrentPlayerColor(color)) {
+        startLink(b, row, col);
+      } else {
+        console.log(
+          `${getCurrentPlayerColor()} can't start link with ${color} peg`
+        );
+      }
     }
   }
 
-  function handlePegMode(b, row, col) {
-    let color = b[row][col].color;
-    if (color === "red" || color === "black") {
-      return;
-    }
-    b[row][col].color = currentPlayer ? "red" : "black";
+  function startLink(b, row, col) {
+    console.log(`set first peg: (${row},${col})`);
+    setFirstPeg({ row, col });
+    setSecondLinkClick(true);
+    setBoard(togglePossibleLinks(row, col, b, true));
+  }
+
+  function completeLink(b, row, col) {
+    b = exitLinkMode(b);
+    b[firstPeg.row][firstPeg.col].links.push({ row, col });
+    b[row][col].links.push(firstPeg);
     makeMove(b);
+  }
+
+  function getCurrentPlayerColor() {
+    return currentPlayer ? "red" : "black";
+  }
+
+  function isCurrentPlayerColor(color) {
+    return color !== "empty" && (color === "red") === currentPlayer;
   }
 
   function makeMove(newState) {
     setBoard(newState);
     socket.emit("move", { newState, roomName });
     // setCurrentPlayer((p) => !p);
-  }
-
-  function createLink(b, startPegCoords, endPegCoords) {
-    b[startPegCoords.row][startPegCoords.col].links.push(endPegCoords);
-    b[endPegCoords.row][endPegCoords.col].links.push(startPegCoords);
-    return b;
   }
 
   function exitLinkMode(b) {
@@ -296,10 +316,11 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
       getPossibleLinks(startPegCoords.row, startPegCoords.col);
 
     return (
-      startPeg.color === endPeg.color &&
-      !hasLink(startPeg.links, endPegCoords) &&
-      hasLink(startPeg.possibleLinks, endPegCoords) &&
-      !linkIsBlocked(startPegCoords, endPegCoords)
+      (startPeg.isFirstPeg && endPeg.isPossibleLink) ||
+      (startPeg.color === endPeg.color &&
+        !hasLink(startPeg.links, endPegCoords) &&
+        hasLink(startPeg.possibleLinks, endPegCoords) &&
+        !linkIsBlocked(startPegCoords, endPegCoords))
     );
   }
 
@@ -312,23 +333,17 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     for (let link of startPeg.possibleLinks) {
       let endPeg = board[link.row][link.col];
       if (shouldShow) {
+        startPeg.isFirstPeg = "first-peg";
         if (canLink({ row, col }, link)) {
-          setPossibleLink(endPeg);
+          endPeg.isPossibleLink = "possible-link";
         }
       } else {
-        endPeg.isPossibleLink && unSetPossibleLink(endPeg);
+        startPeg.isFirstPeg = "";
+        endPeg.isPossibleLink = "";
       }
     }
 
     return board;
-  }
-
-  function setPossibleLink(peg) {
-    peg.isPossibleLink = "possible-link";
-  }
-
-  function unSetPossibleLink(peg) {
-    peg.isPossibleLink = "";
   }
 
   function renderLinks(links, row, col, color) {
@@ -367,6 +382,31 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     });
   }
 
+  function getHoleClassName(hole) {
+    let classNames = [
+      "twixt-hole",
+      hole.color,
+      hole.isPossibleLink,
+      hole.isFirstPeg,
+    ];
+    if (isPossiblePeg(hole)) {
+      classNames.push("possible-peg");
+    }
+    return classNames.join(" ");
+  }
+
+  function isPossiblePeg(hole) {
+    if (linkMode) {
+      if (secondLinkClick) {
+        return hole.isPossibleLink;
+      } else {
+        return isCurrentPlayerColor(hole.color);
+      }
+    } else {
+      return hole.color === "empty";
+    }
+  }
+
   return (
     <div className="twixt-container">
       <div className="twixt-board" onClick={handleHoleClick}>
@@ -377,7 +417,7 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
               id={`coords-${j}-${i}`}
               data-row={i}
               data-col={j}
-              className={"twixt-hole " + hole.color + " " + hole.isPossibleLink}
+              className={getHoleClassName(hole)}
             >
               <div className="twixt-peg">.</div>
               {renderLinks(hole.links, i, j, hole.color)}
@@ -390,7 +430,7 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         <div className="threshold red right">.</div>
       </div>
       <button onClick={() => setCurrentPlayer((p) => !p)}>
-        {currentPlayer ? "Black" : "Red"}
+        {getCurrentPlayerColor()}
       </button>
       <button onClick={resetBoard}>Reset Board</button>
       <button onClick={() => setLinkMode((m) => !m)} disabled={secondLinkClick}>

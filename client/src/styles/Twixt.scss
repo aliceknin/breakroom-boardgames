@@ -40,7 +40,7 @@
       border-radius: 50%;
     }
 
-    &.empty:hover .twixt-peg {
+    &.empty.possible-peg:hover .twixt-peg {
       position: relative;
       background-color: turquoise;
       border: none;
@@ -68,6 +68,17 @@
     }
     &.possible-link .twixt-peg {
       background-color: blueviolet;
+    }
+    &.first-peg .twixt-peg {
+      background-color: hsl(180, 80, 40);
+    }
+    &.red,
+    &.black {
+      &.possible-peg:hover .twixt-peg {
+        box-shadow: 0px 2px 2px hsla(0, 0, 0, 0.5),
+          inset 0px -1px 0px hsla(0, 0, 95, 0.3),
+          0px 2px 3px 5px hsla(174, 72, 56, 0.7);
+      }
     }
   }
 
