@@ -405,7 +405,12 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
 
   return (
     <div className="twixt-container">
-      <h3>Current Player: {getCurrentPlayerColor()}</h3>
+      <div className="player-info">
+        <h3>Current Player: {getCurrentPlayerColor()}</h3>
+        <button onClick={() => setCurrentPlayer((p) => !p)}>
+          Switch Player
+        </button>
+      </div>
       <div className="twixt-board" onClick={handleHoleClick}>
         {board.map((row, i) =>
           row.map((hole, j) => (
@@ -427,9 +432,10 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         <div className="threshold red right">.</div>
       </div>
       <button onClick={resetBoard}>Reset Board</button>
-      <button onClick={() => setCurrentPlayer((p) => !p)}>Switch Player</button>
       {secondLinkClick && (
-        <button onClick={() => setBoard(exitLinkMode())}>Cancel Link</button>
+        <button className={"cancel"} onClick={() => setBoard(exitLinkMode())}>
+          Cancel Link
+        </button>
       )}
     </div>
   );

@@ -157,11 +157,32 @@
 .twixt-container {
   align-self: center;
 
-  h3 {
-    text-align: center;
-    text-transform: capitalize;
-    margin-top: 0;
+  .player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5em;
+
+    button {
+      background-color: transparent;
+      box-shadow: none;
+      color: hsl(205, 30, 20);
+      text-decoration: underline;
+      padding: 0;
+
+      &:hover:not(:disabled),
+      &:focus {
+        background-color: transparent;
+        box-shadow: none;
+      }
+    }
   }
+
+  h3 {
+    text-transform: capitalize;
+    margin: 0;
+  }
+
   button {
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -183,6 +204,10 @@
     &:disabled {
       color: hsl(0, 0, 55);
       background-color: hsl(48, 25, 80);
+    }
+    &.cancel {
+      background-color: hsl(20, 60, 85);
+      color: hsl(20, 60, 40);
     }
   }
 }
