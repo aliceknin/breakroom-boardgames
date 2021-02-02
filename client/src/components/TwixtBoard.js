@@ -61,8 +61,10 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
 
   function handlePegMode(b, row, col, color) {
     if (color === "empty") {
-      b[row][col].color = getCurrentPlayerColor();
-      makeMove(b);
+      if (!isAcrossThreshold(row, col, false)) {
+        b[row][col].color = getCurrentPlayerColor();
+        makeMove(b);
+      }
     } else if (isCurrentPlayerColor(color)) {
       console.log("switching to link mode");
       setLinkMode(true);
@@ -382,24 +384,37 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     });
   }
 
-  function getHoleClassName(hole) {
+  function getHoleClassName(hole, i, j) {
     let classNames = [
       "twixt-hole",
       hole.color,
       hole.isPossibleLink,
       hole.isFirstPeg,
     ];
-    if (isPossiblePeg(hole)) {
+    if (isPossiblePeg(hole, i, j)) {
       classNames.push("possible-peg");
     }
     return classNames.join(" ");
   }
 
-  function isPossiblePeg(hole) {
+  function isPossiblePeg(hole, row, col) {
+    row = Number(row);
+    col = Number(col);
     if (secondLinkClick) {
       return hole.isPossibleLink;
+    } else if (isAcrossThreshold(row, col, false)) {
+      return false;
     } else {
       return hole.color === "empty" || isCurrentPlayerColor(hole.color);
+    }
+  }
+
+  function isAcrossThreshold(row, col, isCurrPlayerThreshold) {
+    let currPlayer = isCurrPlayerThreshold ? currentPlayer : !currentPlayer;
+    if (currPlayer) {
+      return col === 0 || col === 23;
+    } else {
+      return row === 0 || row === 23;
     }
   }
 
@@ -419,7 +434,7 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
               id={`coords-${j}-${i}`}
               data-row={i}
               data-col={j}
-              className={getHoleClassName(hole)}
+              className={getHoleClassName(hole, i, j)}
             >
               <div className="twixt-peg">.</div>
               {renderLinks(hole.links, i, j, hole.color)}
