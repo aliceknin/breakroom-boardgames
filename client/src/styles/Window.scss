@@ -28,6 +28,7 @@
   }
 
   &.overlay {
+    z-index: 5;
     width: 300px;
     position: absolute;
     bottom: 0;

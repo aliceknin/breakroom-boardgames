@@ -4,6 +4,7 @@ import socketIOClient from "socket.io-client";
 import GenerateName from "project-name-generator";
 import Chat from "../components/Chat";
 import Window from "../components/Window";
+import TwixtBoard from "../components/TwixtBoard";
 import "../styles/Room.scss";
 
 const ENDPOINT = "http://localhost:4005";
@@ -70,8 +71,11 @@ const Room = () => {
               Welcome to room {roomName}
               {socket.userName && ", " + socket.userName}!
             </h1>
-            <button onClick={() => socket.disconnect()}>Disconnect</button>
-            <button onClick={() => socket.connect()}>Connect</button>
+            {/* <div className="buttons-container">
+              <button onClick={() => socket.disconnect()}>Disconnect</button>
+              <button onClick={() => socket.connect()}>Connect</button>
+            </div> */}
+            <TwixtBoard socket={socket} roomName={roomName} />
           </div>
           <Window mode={mode} setMode={setMode}>
             <Chat socket={socket} roomName={roomName} />

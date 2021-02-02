@@ -6,6 +6,7 @@ build
 
 # editor settings
 .vscode
+.history
 
 # misc
 npm-debug.log*

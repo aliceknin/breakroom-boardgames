@@ -73,6 +73,15 @@ io.on("connection", (socket) => {
     socket.emit("replace msgs", roomContents[roomName].chat);
   });
 
+  socket.on("game joined", (roomName) => {
+    // console.log(
+    //   roomContents[roomName].gameState
+    //     ? roomContents[roomName].gameState[0]
+    //     : "no game state yet"
+    // );
+    socket.emit("game state change", roomContents[roomName].gameState);
+  });
+
   let secondsSinceConnection = 0;
   let interval = setInterval(() => {
     secondsSinceConnection++;
@@ -87,6 +96,12 @@ io.on("connection", (socket) => {
   socket.on("clear chat", (roomName) => {
     roomContents[roomName].chat = [];
     io.to(roomName).emit("clear chat");
+  });
+
+  socket.on("move", ({ newState, roomName }) => {
+    console.log("received move");
+    roomContents[roomName].gameState = newState;
+    socket.to(roomName).emit("game state change", newState);
   });
 
   socket.on("disconnecting", () => {
