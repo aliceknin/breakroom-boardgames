@@ -1,12 +1,13 @@
 import React, { useEffect, useState } from "react";
 import "../styles/Twixt.scss";
 
-const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
+const TwixtBoard = ({ socket, roomName }) => {
   const [board, setBoard] = useState([]);
-  const [currentPlayer, setCurrentPlayer] = useState(true);
+  const [currentPlayer, setCurrentPlayer] = useState(null);
   const [linkMode, setLinkMode] = useState(false);
   const [firstPeg, setFirstPeg] = useState(null);
   const [secondLinkClick, setSecondLinkClick] = useState(false);
+  const [players, setPlayers] = useState({});
 
   useEffect(() => {
     console.log("a fresh start");
@@ -19,26 +20,54 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
       b[i] = row;
     }
     setBoard(b);
-    socket.emit("game joined", roomName);
-  }, [socket, roomName]);
+    joinGame();
 
-  useEffect(() => {
+    function joinGame() {
+      let roles = ["red", "black"];
+      socket.emit("game joined", { roomName, roles });
+    }
+
     function gameStateChange(newState) {
       console.log("the game's state changed!");
       newState && setBoard(newState);
-      // setCurrentPlayer((p) => !p);
+    }
+
+    function onPlayerChange(players) {
+      console.log("the game's players changed!");
+      setPlayers(players);
+    }
+
+    function onTurnChange(newCurrentPlayer) {
+      setCurrentPlayer(newCurrentPlayer);
+      console.log("new current player:", newCurrentPlayer);
+    }
+
+    function onRoomJoined(data) {
+      if (data.roomName === roomName && data.userName === socket.userName) {
+        console.log("joined room, trying to join game");
+        joinGame();
+      }
     }
 
     console.log("registering game listeners...");
     socket.on("game state change", gameStateChange);
+    socket.on("player change", onPlayerChange);
+    socket.on("turn change", onTurnChange);
+    socket.on("room joined", onRoomJoined);
 
     return () => {
       console.log("removing game listeners...");
       socket.off("game state change", gameStateChange);
+      socket.off("player change", onPlayerChange);
+      socket.off("turn change", onTurnChange);
+      socket.off("room joined", onRoomJoined);
     };
-  }, [socket]);
+  }, [socket, roomName]);
 
   function handleHoleClick(e) {
+    if (!isMyTurn()) {
+      return;
+    }
     let hole = e.target.closest(".twixt-hole");
     if (!hole) {
       console.log("misclick, yo");
@@ -62,10 +91,10 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
   function handlePegMode(b, row, col, color) {
     if (color === "empty") {
       if (!isAcrossThreshold(row, col, false)) {
-        b[row][col].color = getCurrentPlayerColor();
+        b[row][col].color = getMyPlayerColor();
         makeMove(b);
       }
-    } else if (isCurrentPlayerColor(color)) {
+    } else if (isMyPlayerColor(color)) {
       console.log("switching to link mode");
       setLinkMode(true);
       startLink(b, row, col);
@@ -80,12 +109,10 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         console.log("couldn't link", firstPeg, "to", { row, col });
       }
     } else {
-      if (isCurrentPlayerColor(color)) {
+      if (isMyPlayerColor(color)) {
         startLink(b, row, col);
       } else {
-        console.log(
-          `${getCurrentPlayerColor()} can't start link with ${color} peg`
-        );
+        console.log(`${getMyPlayerColor()} can't start link with ${color} peg`);
       }
     }
   }
@@ -94,7 +121,7 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     console.log(`set first peg: (${row},${col})`);
     setFirstPeg({ row, col });
     setSecondLinkClick(true);
-    setBoard(togglePossibleLinks(row, col, b, true));
+    makeMove(togglePossibleLinks(row, col, b, true));
   }
 
   function completeLink(b, row, col) {
@@ -104,18 +131,24 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     makeMove(b);
   }
 
-  function getCurrentPlayerColor() {
-    return currentPlayer ? "red" : "black";
+  function getMyPlayerColor() {
+    return players[socket.userName] || players[socket.id];
   }
 
-  function isCurrentPlayerColor(color) {
-    return color !== "empty" && (color === "red") === currentPlayer;
+  function isMyPlayerColor(color) {
+    return color === getMyPlayerColor();
+  }
+
+  function isMyTurn() {
+    return (
+      currentPlayer &&
+      (currentPlayer[1] === socket.userName || currentPlayer[1] === socket.id)
+    );
   }
 
   function makeMove(newState) {
     setBoard(newState);
     socket.emit("move", { newState, roomName });
-    // setCurrentPlayer((p) => !p);
   }
 
   function exitLinkMode(b) {
@@ -138,8 +171,11 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
       }
       b[i] = row;
     }
-    setBoard(b);
-    socket.emit("move", { newState: b, roomName });
+    makeMove(b);
+  }
+
+  function endTurn() {
+    socket.emit("turn ended", roomName);
   }
 
   function getPossibleLinks(row, col) {
@@ -398,6 +434,9 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
   }
 
   function isPossiblePeg(hole, row, col) {
+    if (!isMyTurn()) {
+      return false;
+    }
     row = Number(row);
     col = Number(col);
     if (secondLinkClick) {
@@ -405,12 +444,14 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
     } else if (isAcrossThreshold(row, col, false)) {
       return false;
     } else {
-      return hole.color === "empty" || isCurrentPlayerColor(hole.color);
+      return hole.color === "empty" || isMyPlayerColor(hole.color);
     }
   }
 
   function isAcrossThreshold(row, col, isCurrPlayerThreshold) {
-    let currPlayer = isCurrPlayerThreshold ? currentPlayer : !currentPlayer;
+    let currPlayer = isCurrPlayerThreshold
+      ? isMyPlayerColor("red")
+      : isMyPlayerColor("black");
     if (currPlayer) {
       return col === 0 || col === 23;
     } else {
@@ -421,10 +462,8 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
   return (
     <div className="twixt-container">
       <div className="player-info">
-        <h3>Current Player: {getCurrentPlayerColor()}</h3>
-        <button onClick={() => setCurrentPlayer((p) => !p)}>
-          Switch Player
-        </button>
+        <h3>It's {currentPlayer ? currentPlayer[0] : "no-one"}'s turn.</h3>
+        <h3>You're playing {getMyPlayerColor()}</h3>
       </div>
       <div className="twixt-board" onClick={handleHoleClick}>
         {board.map((row, i) =>
@@ -447,8 +486,9 @@ const TwixtBoard = ({ socket, roomName, gameState, clearGameState }) => {
         <div className="threshold red right">.</div>
       </div>
       <button onClick={resetBoard}>Reset Board</button>
+      {isMyTurn() && <button onClick={endTurn}>End Turn</button>}
       {secondLinkClick && (
-        <button className={"cancel"} onClick={() => setBoard(exitLinkMode())}>
+        <button className={"cancel"} onClick={() => makeMove(exitLinkMode())}>
           Cancel Link
         </button>
       )}

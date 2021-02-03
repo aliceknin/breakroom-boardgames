@@ -20,17 +20,18 @@ function ensureRoom(roomName) {
     name: roomName,
     chat: [{ msg: `Welcome to ${roomName}!`, serverUtil: true }],
   };
+  return roomContents[roomName];
 }
 
 function broadcastToRoom(msg, roomName) {
-  ensureRoom(roomName);
+  let room = ensureRoom(roomName);
   if (typeof msg === "string") {
     msg = { msg, roomName, serverUtil: true };
   } else {
-    msg.firstFromSender = roomContents[roomName].prevSender !== msg.from;
+    msg.firstFromSender = room.prevSender !== msg.from;
   }
-  roomContents[roomName].prevSender = msg.from;
-  roomContents[roomName].chat.push(msg);
+  room.prevSender = msg.from;
+  room.chat.push(msg);
   io.to(roomName).emit("broadcast", msg);
 }
 
@@ -44,6 +45,71 @@ function logRoom(roomName) {
   }
 }
 
+function initRoles(playerKey, room, roles) {
+  room.openRoles = roles;
+  let filledRoles = fillRole(playerKey, room);
+  room.turnIterator = makeTurnIterator(filledRoles);
+  goToNextTurn(room);
+}
+
+function assignExistingRole(playerKey, room, socket) {
+  let players = room.players;
+
+  if (!players[playerKey]) {
+    room.openRoles.length > 0
+      ? fillRole(playerKey, room)
+      : (players[playerKey] = "spectator");
+  }
+
+  socket.emit("turn change", room.whoseTurnIsIt);
+}
+
+function fillRole(playerKey, room) {
+  let role = room.openRoles.pop();
+
+  room.filledRoles = room.filledRoles || new Map();
+  room.filledRoles.set(role, playerKey);
+
+  room.players = room.players || {};
+  room.players[playerKey] = role;
+
+  return room.filledRoles;
+}
+
+function* makeTurnIterator(filledRoles) {
+  while (true) {
+    for (let role of filledRoles) {
+      yield role;
+    }
+  }
+}
+
+function goToNextTurn(room) {
+  room.whoseTurnIsIt = room.turnIterator.next().value;
+  io.to(room.name).emit("turn change", room.whoseTurnIsIt);
+  console.log(`it's ${room.whoseTurnIsIt}'s turn in ${room.name}`);
+}
+
+function leaveGame(playerKey, roomName) {
+  let room = roomContents[roomName];
+  let players = room.players;
+
+  if (players && players[playerKey]) {
+    let role = players[playerKey];
+
+    if (role !== "spectator" && room.filledRoles.get(role) === playerKey) {
+      room.openRoles.push(role);
+      room.filledRoles.delete(role);
+      if (room.whoseTurnIsIt[1] === playerKey) {
+        goToNextTurn(room);
+      }
+    }
+
+    delete players[playerKey];
+    io.to(roomName).emit("player change", players);
+  }
+}
+
 io.on("connection", (socket) => {
   console.log("a user connected");
   userCount++;
@@ -52,13 +118,15 @@ io.on("connection", (socket) => {
   socket.on("join room", ({ roomName, userName }, ack) => {
     userNames[socket.id] = userName;
     socket.userName = userName;
+
     if (!socket.rooms.has(roomName)) {
+      let room = ensureRoom(roomName);
+
       socket.join(roomName);
+      ack && ack(room);
 
-      ensureRoom(roomName);
-
-      ack && ack(roomContents[roomName]);
-      socket.emit("replace msgs", roomContents[roomName].chat);
+      socket.emit("room joined", { roomName, userName });
+      socket.emit("replace msgs", room.chat);
       logRoom(roomName);
     }
   });
@@ -73,13 +141,24 @@ io.on("connection", (socket) => {
     socket.emit("replace msgs", roomContents[roomName].chat);
   });
 
-  socket.on("game joined", (roomName) => {
-    // console.log(
-    //   roomContents[roomName].gameState
-    //     ? roomContents[roomName].gameState[0]
-    //     : "no game state yet"
-    // );
-    socket.emit("game state change", roomContents[roomName].gameState);
+  socket.on("game joined", ({ roomName, roles }) => {
+    let room = ensureRoom(roomName);
+    let playerKey = socket.userName || socket.id;
+
+    if (room.openRoles) {
+      assignExistingRole(playerKey, room, socket);
+    } else {
+      if (roles && roles.length > 0) {
+        initRoles(playerKey, room, roles);
+      } else {
+        socket.emit("game state change", room.gameState);
+        return;
+      }
+    }
+    console.log("players:", room.players);
+    console.log("filled roles:", room.filledRoles);
+    io.to(roomName).emit("player change", room.players);
+    socket.emit("game state change", room.gameState);
   });
 
   let secondsSinceConnection = 0;
@@ -104,6 +183,11 @@ io.on("connection", (socket) => {
     socket.to(roomName).emit("game state change", newState);
   });
 
+  socket.on("turn ended", (roomName) => {
+    let room = roomContents[roomName];
+    goToNextTurn(room);
+  });
+
   socket.on("disconnecting", () => {
     console.log(
       socket.userName || socket.id,
@@ -111,7 +195,9 @@ io.on("connection", (socket) => {
       socket.rooms
     );
     for (let roomName of socket.rooms) {
-      broadcastToRoom(`${socket.userName || socket.id} left.`, roomName);
+      let playerKey = socket.userName || socket.id;
+      broadcastToRoom(`${playerKey} left.`, roomName);
+      leaveGame(playerKey, roomName);
     }
   });
 
