@@ -8,6 +8,7 @@ const TwixtBoard = ({ socket, roomName }) => {
   const [firstPeg, setFirstPeg] = useState(null);
   const [secondLinkClick, setSecondLinkClick] = useState(false);
   const [players, setPlayers] = useState({});
+  const [actionsThisTurn, setActionsThisTurn] = useState([]);
 
   useEffect(() => {
     console.log("a fresh start");
@@ -93,6 +94,7 @@ const TwixtBoard = ({ socket, roomName }) => {
       if (!isAcrossThreshold(row, col, false)) {
         b[row][col].color = getMyPlayerColor();
         makeMove(b);
+        setActionsThisTurn((a) => a.concat({ action: "peg", row, col }));
       }
     } else if (isMyPlayerColor(color)) {
       console.log("switching to link mode");
@@ -107,6 +109,7 @@ const TwixtBoard = ({ socket, roomName }) => {
         completeLink(b, row, col);
       } else {
         console.log("couldn't link", firstPeg, "to", { row, col });
+        makeMove(exitLinkMode(b));
       }
     } else {
       if (isMyPlayerColor(color)) {
@@ -129,6 +132,13 @@ const TwixtBoard = ({ socket, roomName }) => {
     b[firstPeg.row][firstPeg.col].links.push({ row, col });
     b[row][col].links.push(firstPeg);
     makeMove(b);
+    setActionsThisTurn((a) =>
+      a.concat({
+        action: "link",
+        startPegCoords: firstPeg,
+        endPegCoords: { row, col },
+      })
+    );
   }
 
   function getMyPlayerColor() {
@@ -163,6 +173,7 @@ const TwixtBoard = ({ socket, roomName }) => {
   }
 
   function resetBoard() {
+    let prevBoard = board;
     let b = Array(24);
     for (let i = 0; i < b.length; i++) {
       let row = Array(24);
@@ -172,10 +183,71 @@ const TwixtBoard = ({ socket, roomName }) => {
       b[i] = row;
     }
     makeMove(b);
+    setActionsThisTurn((a) => a.concat({ action: "reset", prevBoard }));
   }
 
   function endTurn() {
     socket.emit("turn ended", roomName);
+    setActionsThisTurn([]);
+  }
+
+  function removePeg(b, row, col) {
+    let peg = b[row][col];
+    if (peg.links.length === 0) {
+      peg.color = "empty";
+      return b;
+    }
+  }
+
+  function unlink(b, startPegCoords, endPegCoords) {
+    let startPeg = b[startPegCoords.row][startPegCoords.col];
+    let endPeg = b[endPegCoords.row][endPegCoords.col];
+    let startLinks = [...startPeg.links];
+    let endLinks = [...endPeg.links];
+
+    if (
+      removeLink(startLinks, endPegCoords) &&
+      removeLink(endLinks, startPegCoords)
+    ) {
+      startPeg.links = startLinks;
+      endPeg.links = endLinks;
+      return b;
+    }
+  }
+
+  function undoLastAction() {
+    if (actionsThisTurn.length > 0) {
+      let b = [...board];
+      let actions = [...actionsThisTurn];
+      let lastAction = actions.pop();
+      let modifiedBoard;
+
+      switch (lastAction.action) {
+        case "peg":
+          modifiedBoard = removePeg(b, lastAction.row, lastAction.col);
+          break;
+        case "link":
+          modifiedBoard = unlink(
+            b,
+            lastAction.startPegCoords,
+            lastAction.endPegCoords
+          );
+          break;
+        case "reset":
+          modifiedBoard = lastAction.prevBoard;
+          break;
+        default:
+          console.log("tried to undo unexpected action");
+      }
+
+      if (modifiedBoard) {
+        makeMove(modifiedBoard);
+        setActionsThisTurn(actions);
+        console.log("undid", lastAction);
+      } else {
+        console.log("failed to undo", lastAction);
+      }
+    }
   }
 
   function getPossibleLinks(row, col) {
@@ -201,9 +273,23 @@ const TwixtBoard = ({ socket, roomName }) => {
     return possibleLinks;
   }
 
+  function linkEquals(firstLink, secondLink) {
+    return firstLink.row === secondLink.row && firstLink.col === secondLink.col;
+  }
+
+  function removeLink(links, endPegCoords) {
+    for (let i = 0; i < links.length; i++) {
+      if (linkEquals(links[i], endPegCoords)) {
+        return links.splice(i, 1);
+      }
+    }
+
+    return false;
+  }
+
   function hasLink(links, endPegCoords) {
     for (let link of links) {
-      if (link.row === endPegCoords.row && link.col === endPegCoords.col) {
+      if (linkEquals(link, endPegCoords)) {
         return true;
       }
     }
@@ -487,6 +573,9 @@ const TwixtBoard = ({ socket, roomName }) => {
       </div>
       <button onClick={resetBoard}>Reset Board</button>
       {isMyTurn() && <button onClick={endTurn}>End Turn</button>}
+      {actionsThisTurn.length > 0 && (
+        <button onClick={undoLastAction}>Undo</button>
+      )}
       {secondLinkClick && (
         <button className={"cancel"} onClick={() => makeMove(exitLinkMode())}>
           Cancel Link
