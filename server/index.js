@@ -46,6 +46,7 @@ function logRoom(roomName) {
 }
 
 function initRoles(playerKey, room, roles) {
+  room.shouldManageTurns = true;
   room.openRoles = roles;
   let filledRoles = fillRole(playerKey, room);
   room.turnIterator = makeTurnIterator(filledRoles);
@@ -159,6 +160,8 @@ io.on("connection", (socket) => {
     console.log("filled roles:", room.filledRoles);
     io.to(roomName).emit("player change", room.players);
     socket.emit("game state change", room.gameState);
+    "shouldManageTurns" in room &&
+      socket.emit("set turn management", room.shouldManageTurns);
   });
 
   let secondsSinceConnection = 0;
@@ -174,6 +177,7 @@ io.on("connection", (socket) => {
 
   socket.on("clear chat", (roomName) => {
     roomContents[roomName].chat = [];
+    roomContents[roomName].prevSender = null;
     io.to(roomName).emit("clear chat");
   });
 
@@ -186,6 +190,17 @@ io.on("connection", (socket) => {
   socket.on("turn ended", (roomName) => {
     let room = roomContents[roomName];
     goToNextTurn(room);
+  });
+
+  socket.on("set turn management", ({ shouldManageTurns, roomName }) => {
+    console.log(
+      "setting turn management in",
+      roomName,
+      "to",
+      shouldManageTurns
+    );
+    roomContents[roomName].shouldManageTurns = shouldManageTurns;
+    socket.to(roomName).emit("set turn management", shouldManageTurns);
   });
 
   socket.on("disconnecting", () => {

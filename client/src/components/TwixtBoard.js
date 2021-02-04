@@ -9,6 +9,8 @@ const TwixtBoard = ({ socket, roomName }) => {
   const [secondLinkClick, setSecondLinkClick] = useState(false);
   const [players, setPlayers] = useState({});
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
+  const [shouldManageTurns, setShouldManageTurns] = useState(true);
+  const [myColor, setMyColor] = useState(true);
 
   useEffect(() => {
     console.log("a fresh start");
@@ -50,11 +52,18 @@ const TwixtBoard = ({ socket, roomName }) => {
       }
     }
 
+    function onSetTurnManagement(shouldManageTurns) {
+      setShouldManageTurns(shouldManageTurns);
+      shouldManageTurns && setActionsThisTurn([]);
+      console.log("should manage turns:", shouldManageTurns);
+    }
+
     console.log("registering game listeners...");
     socket.on("game state change", gameStateChange);
     socket.on("player change", onPlayerChange);
     socket.on("turn change", onTurnChange);
     socket.on("room joined", onRoomJoined);
+    socket.on("set turn management", onSetTurnManagement);
 
     return () => {
       console.log("removing game listeners...");
@@ -62,6 +71,7 @@ const TwixtBoard = ({ socket, roomName }) => {
       socket.off("player change", onPlayerChange);
       socket.off("turn change", onTurnChange);
       socket.off("room joined", onRoomJoined);
+      socket.on("set turn management", onSetTurnManagement);
     };
   }, [socket, roomName]);
 
@@ -141,8 +151,16 @@ const TwixtBoard = ({ socket, roomName }) => {
     );
   }
 
-  function getMyPlayerColor() {
+  function getTurnBasedPlayerColor() {
     return players[socket.userName] || players[socket.id];
+  }
+
+  function getMyPlayerColor() {
+    if (shouldManageTurns) {
+      return getTurnBasedPlayerColor();
+    } else {
+      return myColor ? "red" : "black";
+    }
   }
 
   function isMyPlayerColor(color) {
@@ -150,10 +168,14 @@ const TwixtBoard = ({ socket, roomName }) => {
   }
 
   function isMyTurn() {
-    return (
-      currentPlayer &&
-      (currentPlayer[1] === socket.userName || currentPlayer[1] === socket.id)
-    );
+    if (shouldManageTurns) {
+      return (
+        currentPlayer &&
+        (currentPlayer[1] === socket.userName || currentPlayer[1] === socket.id)
+      );
+    } else {
+      return true;
+    }
   }
 
   function makeMove(newState) {
@@ -173,7 +195,9 @@ const TwixtBoard = ({ socket, roomName }) => {
   }
 
   function resetBoard() {
-    let prevBoard = board;
+    let prevBoard = [...board];
+    prevBoard = linkMode ? exitLinkMode(prevBoard) : prevBoard;
+
     let b = Array(24);
     for (let i = 0; i < b.length; i++) {
       let row = Array(24);
@@ -182,11 +206,13 @@ const TwixtBoard = ({ socket, roomName }) => {
       }
       b[i] = row;
     }
+
     makeMove(b);
     setActionsThisTurn((a) => a.concat({ action: "reset", prevBoard }));
   }
 
   function endTurn() {
+    linkMode && makeMove(exitLinkMode());
     socket.emit("turn ended", roomName);
     setActionsThisTurn([]);
   }
@@ -241,6 +267,7 @@ const TwixtBoard = ({ socket, roomName }) => {
       }
 
       if (modifiedBoard) {
+        modifiedBoard = linkMode ? exitLinkMode(modifiedBoard) : modifiedBoard;
         makeMove(modifiedBoard);
         setActionsThisTurn(actions);
         console.log("undid", lastAction);
@@ -248,6 +275,22 @@ const TwixtBoard = ({ socket, roomName }) => {
         console.log("failed to undo", lastAction);
       }
     }
+  }
+
+  function switchPlayer() {
+    linkMode && makeMove(exitLinkMode());
+    setMyColor((c) => !c);
+  }
+
+  function toggleManageTurns() {
+    linkMode && makeMove(exitLinkMode());
+    console.log("setting turn management...");
+    setMyColor(getTurnBasedPlayerColor() === "red");
+    socket.emit("set turn management", {
+      shouldManageTurns: !shouldManageTurns,
+      roomName,
+    });
+    setShouldManageTurns((s) => !s);
   }
 
   function getPossibleLinks(row, col) {
@@ -548,8 +591,16 @@ const TwixtBoard = ({ socket, roomName }) => {
   return (
     <div className="twixt-container">
       <div className="player-info">
-        <h3>It's {currentPlayer ? currentPlayer[0] : "no-one"}'s turn.</h3>
-        <h3>You're playing {getMyPlayerColor()}</h3>
+        {shouldManageTurns && (
+          <h3>It's {currentPlayer ? currentPlayer[0] : "no-one"}'s turn.</h3>
+        )}
+        <button onClick={toggleManageTurns}>
+          {shouldManageTurns ? "Stop Turns" : "Manage Turns"}
+        </button>
+        {!shouldManageTurns && (
+          <button onClick={switchPlayer}>Switch Player</button>
+        )}
+        <h3>You're playing {getMyPlayerColor()}.</h3>
       </div>
       <div className="twixt-board" onClick={handleHoleClick}>
         {board.map((row, i) =>
@@ -571,8 +622,10 @@ const TwixtBoard = ({ socket, roomName }) => {
         <div className="threshold black bottom">.</div>
         <div className="threshold red right">.</div>
       </div>
-      <button onClick={resetBoard}>Reset Board</button>
-      {isMyTurn() && <button onClick={endTurn}>End Turn</button>}
+      {isMyTurn() && <button onClick={resetBoard}>Reset Board</button>}
+      {shouldManageTurns && isMyTurn() && (
+        <button onClick={endTurn}>End Turn</button>
+      )}
       {actionsThisTurn.length > 0 && (
         <button onClick={undoLastAction}>Undo</button>
       )}
