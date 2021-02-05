@@ -161,7 +161,7 @@ io.on("connection", (socket) => {
     io.to(roomName).emit("player change", room.players);
     socket.emit("game state change", room.gameState);
     "shouldManageTurns" in room &&
-      socket.emit("set turn management", room.shouldManageTurns);
+      socket.emit("broadcast turn management", room.shouldManageTurns);
   });
 
   let secondsSinceConnection = 0;
@@ -200,7 +200,7 @@ io.on("connection", (socket) => {
       shouldManageTurns
     );
     roomContents[roomName].shouldManageTurns = shouldManageTurns;
-    socket.to(roomName).emit("set turn management", shouldManageTurns);
+    socket.to(roomName).emit("broadcast turn management", shouldManageTurns);
   });
 
   socket.on("disconnecting", () => {

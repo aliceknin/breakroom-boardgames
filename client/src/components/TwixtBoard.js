@@ -63,7 +63,7 @@ const TwixtBoard = ({ socket, roomName }) => {
     socket.on("player change", onPlayerChange);
     socket.on("turn change", onTurnChange);
     socket.on("room joined", onRoomJoined);
-    socket.on("set turn management", onSetTurnManagement);
+    socket.on("broadcast turn management", onSetTurnManagement);
 
     return () => {
       console.log("removing game listeners...");
@@ -71,7 +71,7 @@ const TwixtBoard = ({ socket, roomName }) => {
       socket.off("player change", onPlayerChange);
       socket.off("turn change", onTurnChange);
       socket.off("room joined", onRoomJoined);
-      socket.on("set turn management", onSetTurnManagement);
+      socket.on("broadcast turn management", onSetTurnManagement);
     };
   }, [socket, roomName]);
 
@@ -141,6 +141,11 @@ const TwixtBoard = ({ socket, roomName }) => {
     b = exitLinkMode(b);
     b[firstPeg.row][firstPeg.col].links.push({ row, col });
     b[row][col].links.push(firstPeg);
+
+    if (hasPlayerWon(getMyPlayerColor())) {
+      console.log("WE WON! (we won) WE WON! (we won)");
+    }
+
     makeMove(b);
     setActionsThisTurn((a) =>
       a.concat({
@@ -291,6 +296,70 @@ const TwixtBoard = ({ socket, roomName }) => {
       roomName,
     });
     setShouldManageTurns((s) => !s);
+  }
+
+  function getThresholdPegs(startPegs, colorIsRed) {
+    let thresholdNum = startPegs ? 0 : 23;
+    let thresholdPegs = [];
+
+    for (let i = 1; i < 23; i++) {
+      let pegCoords = colorIsRed
+        ? { row: i, col: thresholdNum }
+        : { row: thresholdNum, col: i };
+      if (board[pegCoords.row][pegCoords.col].color !== "empty") {
+        thresholdPegs.push(pegCoords);
+      }
+    }
+    return thresholdPegs;
+  }
+
+  function isEndThresholdPeg(pegCoords, colorIsRed) {
+    let isAcrossEndThreshold = colorIsRed
+      ? pegCoords.col === 23
+      : pegCoords.row === 23;
+    let isPeg = board[pegCoords.row][pegCoords.col].color !== "empty";
+    return isAcrossEndThreshold && isPeg;
+  }
+
+  function pathExistsFrom(startPegCoords, colorIsRed) {
+    let visited = new Set();
+    let stack = [startPegCoords];
+
+    while (stack.length > 0) {
+      let pegCoords = stack.pop();
+
+      if (!visited.has(pegCoords)) {
+        if (isEndThresholdPeg(pegCoords, colorIsRed)) {
+          return true;
+        } else {
+          let peg = board[pegCoords.row][pegCoords.col];
+          stack.push(...peg.links);
+          visited.add(pegCoords);
+        }
+      }
+    }
+
+    return false;
+  }
+
+  function hasPlayerWon(color) {
+    console.log("did we win yet?");
+    let colorIsRed = color === "red";
+    let startThresholdPegs = getThresholdPegs(true, colorIsRed);
+
+    if (startThresholdPegs.length > 0) {
+      let endThresholdPegs = getThresholdPegs(false, colorIsRed);
+
+      if (endThresholdPegs.length > 0) {
+        for (let i = 0; i < startThresholdPegs.length; i++) {
+          if (pathExistsFrom(startThresholdPegs[i], colorIsRed)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
   }
 
   function getPossibleLinks(row, col) {
