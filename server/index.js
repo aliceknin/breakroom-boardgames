@@ -192,6 +192,15 @@ io.on("connection", (socket) => {
     goToNextTurn(room);
   });
 
+  socket.on("we won", ({ player, roomName }) => {
+    console.log(player, "won in ", roomName);
+    socket.to(roomName).emit("someone won", player);
+    if (roomContents[roomName].shouldManageTurns) {
+      roomContents[roomName].shouldManageTurns = false;
+      io.to(roomName).emit("broadcast turn management", false);
+    }
+  });
+
   socket.on("set turn management", ({ shouldManageTurns, roomName }) => {
     console.log(
       "setting turn management in",

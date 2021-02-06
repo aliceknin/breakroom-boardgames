@@ -38,6 +38,10 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
+
+      &::selection {
+        background-color: transparent;
+      }
     }
 
     &.empty.possible-peg:hover .twixt-peg {
@@ -151,6 +155,9 @@
   }
   &.black {
     background-color: black;
+  }
+  &::selection {
+    background-color: transparent;
   }
 }
 

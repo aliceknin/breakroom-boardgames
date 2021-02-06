@@ -11,6 +11,7 @@ const TwixtBoard = ({ socket, roomName }) => {
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
   const [shouldManageTurns, setShouldManageTurns] = useState(true);
   const [myColor, setMyColor] = useState(true);
+  const [winner, setWinner] = useState(null);
 
   useEffect(() => {
     console.log("a fresh start");
@@ -58,12 +59,18 @@ const TwixtBoard = ({ socket, roomName }) => {
       console.log("should manage turns:", shouldManageTurns);
     }
 
+    function onWin(player) {
+      console.log("someone won:", player);
+      setWinner(player);
+    }
+
     console.log("registering game listeners...");
     socket.on("game state change", gameStateChange);
     socket.on("player change", onPlayerChange);
     socket.on("turn change", onTurnChange);
     socket.on("room joined", onRoomJoined);
     socket.on("broadcast turn management", onSetTurnManagement);
+    socket.on("someone won", onWin);
 
     return () => {
       console.log("removing game listeners...");
@@ -71,7 +78,8 @@ const TwixtBoard = ({ socket, roomName }) => {
       socket.off("player change", onPlayerChange);
       socket.off("turn change", onTurnChange);
       socket.off("room joined", onRoomJoined);
-      socket.on("broadcast turn management", onSetTurnManagement);
+      socket.off("broadcast turn management", onSetTurnManagement);
+      socket.off("someone won", onWin);
     };
   }, [socket, roomName]);
 
@@ -156,6 +164,9 @@ const TwixtBoard = ({ socket, roomName }) => {
 
     if (hasPlayerWon(getMyPlayerColor())) {
       console.log("WE WON! (we won) WE WON! (we won)");
+      let player = [getMyPlayerColor(), socket.userName || socket.id];
+      setWinner(player);
+      socket.emit("we won", { player, roomName });
     }
 
     makeMove(b);
@@ -223,9 +234,10 @@ const TwixtBoard = ({ socket, roomName }) => {
       }
       b[i] = row;
     }
+    setWinner(null);
 
     makeMove(b);
-    setActionsThisTurn((a) => a.concat({ action: "reset", prevBoard }));
+    setActionsThisTurn((a) => a.concat({ action: "reset", prevBoard, winner }));
   }
 
   function endTurn() {
@@ -278,6 +290,7 @@ const TwixtBoard = ({ socket, roomName }) => {
           break;
         case "reset":
           modifiedBoard = lastAction.prevBoard;
+          setWinner(lastAction.winner);
           break;
         default:
           console.log("tried to undo unexpected action");
@@ -686,6 +699,11 @@ const TwixtBoard = ({ socket, roomName }) => {
         )}
         <h3>You're playing {getMyPlayerColor()}.</h3>
       </div>
+      {winner && (
+        <h2>
+          {winner[0]} won! Go {winner[1]}!
+        </h2>
+      )}
       <div className="twixt-board" onClick={handleHoleClick}>
         {board.map((row, i) =>
           row.map((hole, j) => (
