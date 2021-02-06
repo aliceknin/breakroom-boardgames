@@ -115,7 +115,10 @@ const TwixtBoard = ({ socket, roomName }) => {
 
   function handleLinkMode(b, row, col, color) {
     if (secondLinkClick) {
-      if (canLink(firstPeg, { row, col })) {
+      if (singleLink(b, row, col)) {
+        let link = b[firstPeg.row][firstPeg.col].legalLinks.pop();
+        completeLink(b, link.row, link.col);
+      } else if (canLink(firstPeg, { row, col })) {
         completeLink(b, row, col);
       } else {
         console.log("couldn't link", firstPeg, "to", { row, col });
@@ -128,6 +131,15 @@ const TwixtBoard = ({ socket, roomName }) => {
         console.log(`${getMyPlayerColor()} can't start link with ${color} peg`);
       }
     }
+  }
+
+  function singleLink(b, row, col) {
+    let startPeg = b[firstPeg.row][firstPeg.col];
+    return (
+      linkEquals(firstPeg, { row, col }) &&
+      startPeg.legalLinks &&
+      startPeg.legalLinks.length === 1
+    );
   }
 
   function startLink(b, row, col) {
@@ -565,6 +577,7 @@ const TwixtBoard = ({ socket, roomName }) => {
 
     startPeg.possibleLinks =
       startPeg.possibleLinks || getPossibleLinks(row, col);
+    startPeg.legalLinks = startPeg.legalLinks || [];
 
     for (let link of startPeg.possibleLinks) {
       let endPeg = board[link.row][link.col];
@@ -572,10 +585,12 @@ const TwixtBoard = ({ socket, roomName }) => {
         startPeg.isFirstPeg = "first-peg";
         if (canLink({ row, col }, link)) {
           endPeg.isPossibleLink = "possible-link";
+          startPeg.legalLinks.push(link);
         }
       } else {
         startPeg.isFirstPeg = "";
         endPeg.isPossibleLink = "";
+        startPeg.legalLinks = [];
       }
     }
 
