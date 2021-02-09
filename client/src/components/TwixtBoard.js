@@ -20,7 +20,7 @@ const TwixtBoard = ({
   isMyPlayerColor,
   onPlayerWin,
   winner,
-  setWinner,
+  broadcastWinner,
   shouldManageTurns,
   endTurn,
   actionsThisTurn,
@@ -138,7 +138,7 @@ const TwixtBoard = ({
     let prevBoard = [...board];
     prevBoard = linkMode ? exitLinkMode(prevBoard) : prevBoard;
 
-    setWinner(null);
+    broadcastWinner(null);
     makeMove(getInitialBoard());
 
     setActionsThisTurn((a) => a.concat({ action: "reset", prevBoard, winner }));
@@ -188,7 +188,7 @@ const TwixtBoard = ({
           break;
         case "reset":
           modifiedBoard = lastAction.prevBoard;
-          setWinner(lastAction.winner);
+          broadcastWinner(lastAction.winner);
           break;
         default:
           console.log("tried to undo unexpected action");

@@ -51,7 +51,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
     }
 
     function onWin(player) {
-      console.log("someone won:", player);
+      player && console.log("someone won:", player);
       setWinner(player);
     }
 
@@ -123,11 +123,16 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
       roomName,
     });
     setShouldManageTurns((s) => !s);
+    !shouldManageTurns && setActionsThisTurn([]);
   }
 
   function onPlayerWin() {
     console.log("WE WON! (we won) WE WON! (we won)");
     let player = [getMyPlayerColor(), socket.userName || socket.id];
+    broadcastWinner(player);
+  }
+
+  function broadcastWinner(player) {
     setWinner(player);
     socket.emit("we won", { player, roomName });
   }
@@ -151,7 +156,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
         isMyPlayerColor={isMyPlayerColor}
         onPlayerWin={onPlayerWin}
         winner={winner}
-        setWinner={setWinner}
+        broadcastWinner={broadcastWinner}
         shouldManageTurns={shouldManageTurns}
         endTurn={endTurn}
         actionsThisTurn={actionsThisTurn}

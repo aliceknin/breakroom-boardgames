@@ -45,6 +45,19 @@ function logRoom(roomName) {
   }
 }
 
+function emitInitalGameState(room, includeTurns, socket) {
+  socket.emit("game state change", room.gameState);
+  "winner" in room && socket.emit("someone won", room.winner);
+
+  if (includeTurns) {
+    console.log("players:", room.players);
+    console.log("filled roles:", room.filledRoles);
+    io.to(room.name).emit("player change", room.players);
+    "shouldManageTurns" in room &&
+      socket.emit("broadcast turn management", room.shouldManageTurns);
+  }
+}
+
 function initRoles(playerKey, room, roles) {
   room.shouldManageTurns = true;
   room.openRoles = roles;
@@ -152,16 +165,11 @@ io.on("connection", (socket) => {
       if (roles && roles.length > 0) {
         initRoles(playerKey, room, roles);
       } else {
-        socket.emit("game state change", room.gameState);
+        emitInitalGameState(room, false, socket);
         return;
       }
     }
-    console.log("players:", room.players);
-    console.log("filled roles:", room.filledRoles);
-    io.to(roomName).emit("player change", room.players);
-    socket.emit("game state change", room.gameState);
-    "shouldManageTurns" in room &&
-      socket.emit("broadcast turn management", room.shouldManageTurns);
+    emitInitalGameState(room, true, socket);
   });
 
   let secondsSinceConnection = 0;
@@ -194,6 +202,7 @@ io.on("connection", (socket) => {
 
   socket.on("we won", ({ player, roomName }) => {
     console.log(player, "won in ", roomName);
+    roomContents[roomName].winner = player;
     socket.to(roomName).emit("someone won", player);
     if (roomContents[roomName].shouldManageTurns) {
       roomContents[roomName].shouldManageTurns = false;
