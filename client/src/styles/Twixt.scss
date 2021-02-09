@@ -1,13 +1,28 @@
 .twixt-board {
+  --number-of-columns: 24;
+  --col-size: 3vmin;
+  --board-size: calc(
+    var(--col-size) * var(--number-of-columns) + var(--col-size) * 2
+  );
+}
+
+@media (orientation: landscape) {
+  .twixt-board {
+    --col-size: 2.6vmin;
+  }
+}
+
+.twixt-board {
   position: relative;
   background-color: cornsilk;
-  border-radius: 10px;
+  border-radius: calc(var(--col-size) / 1.5);
+  overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(24, 1fr);
-  grid-template-rows: repeat(24, 1fr);
-  width: 78vmin;
-  height: 78vmin;
-  padding: 3vmin;
+  grid-template-columns: repeat(var(--number-of-columns), 1fr);
+  grid-template-rows: repeat(var(--number-of-columns), 1fr);
+  width: var(--board-size);
+  height: var(--board-size);
+  padding: var(--col-size);
   box-sizing: border-box;
   box-shadow: 0px 7px 15px hsla(0, 0, 0, 0.3),
     inset 0px -3px 2px hsla(0, 0, 0, 0.15),
@@ -86,40 +101,50 @@
     }
   }
 
-  $threshold-width: 0.8%;
-  $threshold-length: 84%;
-  $threshold-margin: 8%;
-  $threshold-inset: calc(6vmin - 0.4%);
-
   .threshold {
+    --threshold-width: calc(var(--col-size) / 5);
+    --threshold-length: calc(
+      var(--col-size) * var(--number-of-columns) - var(--col-size) * 2 -
+        var(--threshold-width)
+    );
+    --threshold-margin: calc(var(--col-size) * 2 + var(--threshold-width) / 2);
+    --threshold-inset: calc(var(--col-size) * 2 - var(--threshold-width) / 2);
+
     position: absolute;
     font-size: 2px;
     text-align: center;
     color: transparent;
-    border-radius: 0.5vmin;
+    border-radius: var(--threshold-width);
     &.red {
-      width: $threshold-width;
-      height: $threshold-length;
       background-color: red;
-      top: $threshold-margin;
+      width: var(--threshold-width);
+      height: var(--threshold-length);
+      top: var(--threshold-margin);
     }
     &.black {
-      width: $threshold-length;
-      height: $threshold-width;
       background-color: black;
-      left: $threshold-margin;
+      width: var(--threshold-length);
+      height: var(--threshold-width);
+      left: var(--threshold-margin);
     }
     &.top {
-      top: $threshold-inset;
+      top: var(--threshold-inset);
     }
     &.bottom {
-      bottom: $threshold-inset;
+      bottom: var(--threshold-inset);
     }
     &.left {
-      left: $threshold-inset;
+      left: var(--threshold-inset);
     }
     &.right {
-      right: $threshold-inset;
+      right: var(--threshold-inset);
+    }
+  }
+
+  .win-message h2 {
+    text-shadow: 0 0 10px white;
+    &::first-letter {
+      text-transform: uppercase;
     }
   }
 }
@@ -162,33 +187,8 @@
 }
 
 .twixt-container {
-  align-self: center;
-
-  .player-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.5em;
-
-    button {
-      background-color: transparent;
-      box-shadow: none;
-      color: hsl(205, 30, 20);
-      text-decoration: underline;
-      padding: 0;
-
-      &:hover:not(:disabled),
-      &:focus {
-        background-color: transparent;
-        box-shadow: none;
-      }
-    }
-  }
-
-  h3 {
-    // text-transform: capitalize;
-    margin: 0;
-  }
+  margin: 0 auto;
+  width: fit-content;
 
   button {
     text-transform: uppercase;
@@ -216,5 +216,42 @@
       background-color: hsl(20, 60, 85);
       color: hsl(20, 60, 40);
     }
+  }
+}
+
+.turn-info {
+  width: fit-content;
+  margin: 0 auto;
+
+  .player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 0.5em;
+
+    :nth-child(2) {
+      margin: 0 1rem;
+    }
+
+    button {
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: bold;
+      background-color: transparent;
+      box-shadow: none;
+      color: hsl(205, 30, 20);
+      text-decoration: underline;
+      padding: 0;
+      border: none;
+
+      &:hover:not(:disabled),
+      &:focus {
+        color: white;
+      }
+    }
+  }
+
+  h3 {
+    margin: 0;
   }
 }

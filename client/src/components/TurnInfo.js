@@ -8,8 +8,14 @@ const TurnInfo = ({
   getMyPlayerColor,
   winner,
 }) => {
+  function myRole() {
+    let role = getMyPlayerColor();
+
+    return role === "spectator" ? `You're a ${role}` : `You're playing ${role}`;
+  }
+
   return (
-    <div className="twixt-container">
+    <div className="turn-info">
       <div className="player-info">
         {shouldManageTurns && (
           <h3>It's {currentPlayer ? currentPlayer[0] : "no-one"}'s turn.</h3>
@@ -20,13 +26,8 @@ const TurnInfo = ({
         {!shouldManageTurns && (
           <button onClick={switchPlayer}>Switch Player</button>
         )}
-        <h3>You're playing {getMyPlayerColor()}.</h3>
+        <h3>{myRole()}.</h3>
       </div>
-      {winner && (
-        <h2>
-          {winner[0]} won! Go {winner[1]}!
-        </h2>
-      )}
     </div>
   );
 };

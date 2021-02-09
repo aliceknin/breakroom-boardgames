@@ -9,6 +9,7 @@ import {
   isAcrossThreshold,
 } from "../utils/TwixtLinkUtils";
 import "../styles/Twixt.scss";
+import Overlay from "./Overlay";
 
 const TwixtBoard = ({
   board,
@@ -252,14 +253,32 @@ const TwixtBoard = ({
         <div className="threshold red left">.</div>
         <div className="threshold black bottom">.</div>
         <div className="threshold red right">.</div>
+        {winner && (
+          <Overlay className="win-message">
+            <h2>
+              {winner[0]} won!
+              <br />
+              Go {winner[1]}!
+            </h2>
+          </Overlay>
+        )}
       </div>
-      {isMyTurn() && <button onClick={resetBoard}>Reset Board</button>}
-      {shouldManageTurns && isMyTurn() && (
-        <button onClick={endTurn}>End Turn</button>
+      {isMyTurn() ? (
+        <button onClick={resetBoard}>Reset Board</button>
+      ) : (
+        <button disabled>Reset Board</button>
       )}
-      {actionsThisTurn.length > 0 && (
+      {actionsThisTurn.length > 0 ? (
         <button onClick={undoLastAction}>Undo</button>
+      ) : (
+        <button disabled>Undo</button>
       )}
+      {shouldManageTurns &&
+        (isMyTurn() ? (
+          <button onClick={endTurn}>End Turn</button>
+        ) : (
+          <button disabled>End Turn</button>
+        ))}
     </div>
   );
 };

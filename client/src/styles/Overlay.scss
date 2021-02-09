@@ -1,0 +1,27 @@
+.game-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 3;
+  background-color: hsla(0, 0, 100, 0.8);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 0 2em 2em 2em;
+  box-sizing: border-box;
+
+  .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    color: hsl(0, 0, 50);
+    background-color: transparent;
+    box-shadow: none;
+    font-size: 22px;
+    padding: 0.5em;
+  }
+}
