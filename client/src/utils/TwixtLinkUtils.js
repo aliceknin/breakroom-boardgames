@@ -45,7 +45,7 @@ function hasLink(links, endPegCoords) {
   return false;
 }
 
-function hasLinkWhere(x, y, xyConditions, board) {
+function hasLinkWhere(board, x, y, xyConditions) {
   let links = board[y][x].links;
 
   for (let link of links) {
@@ -86,38 +86,18 @@ function linkIsBlocked(startPegCoords, endPegCoords, b) {
       midY = minY + 1;
       console.log("minY:", minY, "midY;", midY, "maxY:", maxY);
       return (
-        hasLinkWhere(
-          maxX,
-          minY,
-          (x, y) => {
-            return x < maxX && y > minY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          minX,
-          midY,
-          (x, y) => {
-            return x > minX && y <= maxY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          maxX,
-          midY,
-          (x, y) => {
-            return x < maxX && y >= minY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          minX,
-          maxY,
-          (x, y) => {
-            return x > minX && y < maxY;
-          },
-          b
-        )
+        hasLinkWhere(b, maxX, minY, (x, y) => {
+          return x < maxX && y > minY;
+        }) ||
+        hasLinkWhere(b, minX, midY, (x, y) => {
+          return x > minX && y <= maxY;
+        }) ||
+        hasLinkWhere(b, maxX, midY, (x, y) => {
+          return x < maxX && y >= minY;
+        }) ||
+        hasLinkWhere(b, minX, maxY, (x, y) => {
+          return x > minX && y < maxY;
+        })
       );
     } else {
       /*
@@ -132,38 +112,18 @@ function linkIsBlocked(startPegCoords, endPegCoords, b) {
       midY = minY + 1;
       console.log("minY:", minY, "midY;", midY, "maxY:", maxY);
       return (
-        hasLinkWhere(
-          maxX,
-          maxY,
-          (x, y) => {
-            return x < maxX && y < maxY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          minX,
-          midY,
-          (x, y) => {
-            return x > minX && y >= minY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          maxX,
-          midY,
-          (x, y) => {
-            return x < maxX && y <= maxY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          minX,
-          minY,
-          (x, y) => {
-            return x > minX && y > minY;
-          },
-          b
-        )
+        hasLinkWhere(b, maxX, maxY, (x, y) => {
+          return x < maxX && y < maxY;
+        }) ||
+        hasLinkWhere(b, minX, midY, (x, y) => {
+          return x > minX && y >= minY;
+        }) ||
+        hasLinkWhere(b, maxX, midY, (x, y) => {
+          return x < maxX && y <= maxY;
+        }) ||
+        hasLinkWhere(b, minX, minY, (x, y) => {
+          return x > minX && y > minY;
+        })
       );
     }
   } else {
@@ -178,38 +138,18 @@ function linkIsBlocked(startPegCoords, endPegCoords, b) {
       maxY = maxXPeg.row;
       console.log("minY:", minY, "midX:", midX, "maxY:", maxY);
       return (
-        hasLinkWhere(
-          minX,
-          maxY,
-          (x, y) => {
-            return x > minX && y < maxY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          midX,
-          minY,
-          (x, y) => {
-            return x <= maxX && y > minY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          midX,
-          maxY,
-          (x, y) => {
-            return x >= minX && y < maxY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          maxX,
-          minY,
-          (x, y) => {
-            return x < maxX && y > minY;
-          },
-          b
-        )
+        hasLinkWhere(b, minX, maxY, (x, y) => {
+          return x > minX && y < maxY;
+        }) ||
+        hasLinkWhere(b, midX, minY, (x, y) => {
+          return x <= maxX && y > minY;
+        }) ||
+        hasLinkWhere(b, midX, maxY, (x, y) => {
+          return x >= minX && y < maxY;
+        }) ||
+        hasLinkWhere(b, maxX, minY, (x, y) => {
+          return x < maxX && y > minY;
+        })
       );
     } else {
       /*
@@ -221,38 +161,18 @@ function linkIsBlocked(startPegCoords, endPegCoords, b) {
       maxY = minXPeg.row;
       console.log("minY:", minY, "midX:", midX, "maxY:", maxY);
       return (
-        hasLinkWhere(
-          maxX,
-          maxY,
-          (x, y) => {
-            return x < maxX && y < maxY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          midX,
-          minY,
-          (x, y) => {
-            return x >= minX && y > minY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          midX,
-          maxY,
-          (x, y) => {
-            return x <= maxX && y < maxY;
-          },
-          b
-        ) ||
-        hasLinkWhere(
-          minX,
-          minY,
-          (x, y) => {
-            return x > minX && y > minY;
-          },
-          b
-        )
+        hasLinkWhere(b, maxX, maxY, (x, y) => {
+          return x < maxX && y < maxY;
+        }) ||
+        hasLinkWhere(b, midX, minY, (x, y) => {
+          return x >= minX && y > minY;
+        }) ||
+        hasLinkWhere(b, midX, maxY, (x, y) => {
+          return x <= maxX && y < maxY;
+        }) ||
+        hasLinkWhere(b, minX, minY, (x, y) => {
+          return x > minX && y > minY;
+        })
       );
     }
   }
