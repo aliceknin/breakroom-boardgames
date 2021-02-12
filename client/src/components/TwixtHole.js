@@ -1,6 +1,6 @@
 import React from "react";
 import TwixtLink from "./TwixtLink";
-import { isAcrossThreshold } from "../utils/TwixtLinkUtils";
+import { canStartLink, canPlacePeg } from "../utils/TwixtLinkUtils";
 
 const TwixtHole = (props) => {
   function getHoleClassName(hole, row, col) {
@@ -10,13 +10,13 @@ const TwixtHole = (props) => {
       hole.isPossibleLink,
       hole.isFirstPeg,
     ];
-    if (isPossiblePeg(hole, row, col)) {
+    if (isPossiblePeg(hole, row, col, props.playerColor)) {
       classNames.push("possible-peg");
     }
     return classNames.join(" ");
   }
 
-  function isPossiblePeg(hole, row, col) {
+  function isPossiblePeg(hole, row, col, playerColor) {
     if (!props.isMyTurn) {
       return false;
     }
@@ -24,10 +24,11 @@ const TwixtHole = (props) => {
     col = Number(col);
     if (props.secondLinkClick) {
       return hole.isPossibleLink;
-    } else if (isAcrossThreshold(row, col, props.playerColor, false)) {
-      return false;
     } else {
-      return hole.color === "empty" || props.playerColor === hole.color;
+      return (
+        canStartLink(hole, playerColor) ||
+        canPlacePeg(hole, row, col, playerColor, props.turns, props.placedPeg)
+      );
     }
   }
 

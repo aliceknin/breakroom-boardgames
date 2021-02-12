@@ -29,6 +29,7 @@ const TwixtBoard = ({
   const [linkMode, setLinkMode] = useState(false);
   const [firstPeg, setFirstPeg] = useState(null);
   const [secondLinkClick, setSecondLinkClick] = useState(false);
+  const [placedPegThisTurn, setPlacedPegThisTurn] = useState(false);
 
   function handleHoleClick(e) {
     if (!isMyTurn()) {
@@ -56,9 +57,12 @@ const TwixtBoard = ({
 
   function handlePegMode(b, row, col, color) {
     if (color === "empty") {
-      if (!isAcrossThreshold(row, col, getMyPlayerColor(), false)) {
+      if (shouldManageTurns && placedPegThisTurn) {
+        console.log("you already placed a peg this turn");
+      } else if (!isAcrossThreshold(row, col, getMyPlayerColor(), false)) {
         b[row][col].color = getMyPlayerColor();
         makeMove(b);
+        shouldManageTurns && setPlacedPegThisTurn(true);
         setActionsThisTurn((a) => a.concat({ action: "peg", row, col }));
       }
     } else if (isMyPlayerColor(color)) {
@@ -140,8 +144,16 @@ const TwixtBoard = ({
 
     broadcastWinner(null);
     makeMove(getInitialBoard());
+    shouldManageTurns && setPlacedPegThisTurn(false);
 
-    setActionsThisTurn((a) => a.concat({ action: "reset", prevBoard, winner }));
+    setActionsThisTurn((a) =>
+      a.concat({ action: "reset", prevBoard, winner, placedPegThisTurn })
+    );
+  }
+
+  function endMyTurn() {
+    setPlacedPegThisTurn(false);
+    endTurn();
   }
 
   function removePeg(b, row, col) {
@@ -178,6 +190,7 @@ const TwixtBoard = ({
       switch (lastAction.action) {
         case "peg":
           modifiedBoard = removePeg(b, lastAction.row, lastAction.col);
+          shouldManageTurns && setPlacedPegThisTurn(false);
           break;
         case "link":
           modifiedBoard = unlink(
@@ -189,6 +202,8 @@ const TwixtBoard = ({
         case "reset":
           modifiedBoard = lastAction.prevBoard;
           broadcastWinner(lastAction.winner);
+          shouldManageTurns &&
+            setPlacedPegThisTurn(lastAction.placedPegThisTurn);
           break;
         default:
           console.log("tried to undo unexpected action");
@@ -245,6 +260,8 @@ const TwixtBoard = ({
                   playerColor={getMyPlayerColor()}
                   isMyTurn={isMyTurn()}
                   secondLinkClick={secondLinkClick}
+                  turns={shouldManageTurns}
+                  placedPeg={placedPegThisTurn}
                 />
               )
           )
@@ -275,7 +292,7 @@ const TwixtBoard = ({
       )}
       {shouldManageTurns &&
         (isMyTurn() ? (
-          <button onClick={endTurn}>End Turn</button>
+          <button onClick={endMyTurn}>End Turn</button>
         ) : (
           <button disabled>End Turn</button>
         ))}

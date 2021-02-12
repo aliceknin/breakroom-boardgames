@@ -210,3 +210,16 @@ export function isAcrossThreshold(
     return row === 0 || row === 23;
   }
 }
+
+export function canStartLink(hole, playerColor) {
+  return playerColor === hole.color;
+}
+
+export function canPlacePeg(hole, row, col, playerColor, turnMode, placedPeg) {
+  let pegLimitReached = turnMode && placedPeg;
+  return (
+    hole.color === "empty" &&
+    !pegLimitReached &&
+    !isAcrossThreshold(row, col, playerColor, false)
+  );
+}
