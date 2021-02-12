@@ -6,7 +6,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
   roomName,
 }) => {
   const [board, setBoard] = useState([]);
-  const [shouldManageTurns, setShouldManageTurns] = useState(true);
+  const [turnMode, setTurnMode] = useState(true);
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [players, setPlayers] = useState({});
@@ -44,10 +44,10 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
       }
     }
 
-    function onSetTurnManagement(shouldManageTurns) {
-      setShouldManageTurns(shouldManageTurns);
-      shouldManageTurns && setActionsThisTurn([]);
-      console.log("should manage turns:", shouldManageTurns);
+    function onSetTurnMode(turnMode) {
+      setTurnMode(turnMode);
+      turnMode && setActionsThisTurn([]);
+      console.log("turn mode:", turnMode);
     }
 
     function onWin(player) {
@@ -60,7 +60,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
     socket.on("player change", onPlayerChange);
     socket.on("turn change", onTurnChange);
     socket.on("room joined", onRoomJoined);
-    socket.on("broadcast turn management", onSetTurnManagement);
+    socket.on("broadcast turn mode", onSetTurnMode);
     socket.on("someone won", onWin);
 
     return () => {
@@ -69,7 +69,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
       socket.off("player change", onPlayerChange);
       socket.off("turn change", onTurnChange);
       socket.off("room joined", onRoomJoined);
-      socket.off("broadcast turn management", onSetTurnManagement);
+      socket.off("broadcast turn mode", onSetTurnMode);
       socket.off("someone won", onWin);
     };
   }, [socket, roomName]);
@@ -84,7 +84,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
   }
 
   function getMyPlayerColor() {
-    if (shouldManageTurns) {
+    if (turnMode) {
       return getTurnBasedPlayerColor();
     } else {
       return myColor ? "red" : "black";
@@ -100,7 +100,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
   }
 
   function isMyTurn() {
-    if (shouldManageTurns) {
+    if (turnMode) {
       return (
         currentPlayer &&
         (currentPlayer[1] === socket.userName || currentPlayer[1] === socket.id)
@@ -115,15 +115,15 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
     setActionsThisTurn([]);
   }
 
-  function toggleManageTurns() {
-    console.log("setting turn management...");
+  function toggleTurnMode() {
+    console.log("setting turn mode...");
     setMyColor(getTurnBasedPlayerColor() === "red");
-    socket.emit("set turn management", {
-      shouldManageTurns: !shouldManageTurns,
+    socket.emit("set turn mode", {
+      turnMode: !turnMode,
       roomName,
     });
-    setShouldManageTurns((s) => !s);
-    !shouldManageTurns && setActionsThisTurn([]);
+    setTurnMode((s) => !s);
+    !turnMode && setActionsThisTurn([]);
   }
 
   function onPlayerWin() {
@@ -140,8 +140,8 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
   return (
     <div className="game-manager">
       <TurnInfo
-        shouldManageTurns={shouldManageTurns}
-        toggleManageTurns={toggleManageTurns}
+        turnMode={turnMode}
+        toggleTurnMode={toggleTurnMode}
         currentPlayer={currentPlayer}
         switchPlayer={switchPlayer}
         getMyPlayerColor={getMyPlayerColor}
@@ -157,7 +157,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
         onPlayerWin={onPlayerWin}
         winner={winner}
         broadcastWinner={broadcastWinner}
-        shouldManageTurns={shouldManageTurns}
+        turnMode={turnMode}
         endTurn={endTurn}
         actionsThisTurn={actionsThisTurn}
         setActionsThisTurn={setActionsThisTurn}

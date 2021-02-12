@@ -53,13 +53,12 @@ function emitInitalGameState(room, includeTurns, socket) {
     console.log("players:", room.players);
     console.log("filled roles:", room.filledRoles);
     io.to(room.name).emit("player change", room.players);
-    "shouldManageTurns" in room &&
-      socket.emit("broadcast turn management", room.shouldManageTurns);
+    "turnMode" in room && socket.emit("broadcast turn mode", room.turnMode);
   }
 }
 
 function initRoles(playerKey, room, roles) {
-  room.shouldManageTurns = true;
+  room.turnMode = true;
   room.openRoles = roles;
   let filledRoles = fillRole(playerKey, room);
   room.turnIterator = makeTurnIterator(filledRoles);
@@ -204,21 +203,16 @@ io.on("connection", (socket) => {
     console.log(player, "won in ", roomName);
     roomContents[roomName].winner = player;
     socket.to(roomName).emit("someone won", player);
-    if (roomContents[roomName].shouldManageTurns) {
-      roomContents[roomName].shouldManageTurns = false;
-      io.to(roomName).emit("broadcast turn management", false);
+    if (player && roomContents[roomName].turnMode) {
+      roomContents[roomName].turnMode = false;
+      io.to(roomName).emit("broadcast turn mode", false);
     }
   });
 
-  socket.on("set turn management", ({ shouldManageTurns, roomName }) => {
-    console.log(
-      "setting turn management in",
-      roomName,
-      "to",
-      shouldManageTurns
-    );
-    roomContents[roomName].shouldManageTurns = shouldManageTurns;
-    socket.to(roomName).emit("broadcast turn management", shouldManageTurns);
+  socket.on("set turn mode", ({ turnMode, roomName }) => {
+    console.log("setting turn mode in", roomName, "to", turnMode);
+    roomContents[roomName].turnMode = turnMode;
+    socket.to(roomName).emit("broadcast turn mode", turnMode);
   });
 
   socket.on("disconnecting", () => {

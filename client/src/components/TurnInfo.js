@@ -1,8 +1,8 @@
 import React from "react";
 
 const TurnInfo = ({
-  shouldManageTurns,
-  toggleManageTurns,
+  turnMode,
+  toggleTurnMode,
   currentPlayer,
   switchPlayer,
   getMyPlayerColor,
@@ -17,15 +17,13 @@ const TurnInfo = ({
   return (
     <div className="turn-info">
       <div className="player-info">
-        {shouldManageTurns && (
+        {turnMode && (
           <h3>It's {currentPlayer ? currentPlayer[0] : "no-one"}'s turn.</h3>
         )}
-        <button onClick={toggleManageTurns}>
-          {shouldManageTurns ? "Stop Turns" : "Manage Turns"}
+        <button onClick={toggleTurnMode}>
+          {turnMode ? "Stop Turns" : "Manage Turns"}
         </button>
-        {!shouldManageTurns && (
-          <button onClick={switchPlayer}>Switch Player</button>
-        )}
+        {!turnMode && <button onClick={switchPlayer}>Switch Player</button>}
         <h3>{myRole()}.</h3>
       </div>
     </div>

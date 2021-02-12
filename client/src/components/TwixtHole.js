@@ -22,7 +22,7 @@ const TwixtHole = (props) => {
     }
     row = Number(row);
     col = Number(col);
-    if (props.secondLinkClick) {
+    if (props.linkMode) {
       return hole.isPossibleLink;
     } else {
       return (

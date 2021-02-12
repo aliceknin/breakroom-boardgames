@@ -6,7 +6,8 @@ import {
   linkEquals,
   removeLink,
   canLink,
-  isAcrossThreshold,
+  canStartLink,
+  canPlacePeg,
 } from "../utils/TwixtLinkUtils";
 import "../styles/Twixt.scss";
 import Overlay from "./Overlay";
@@ -17,19 +18,17 @@ const TwixtBoard = ({
   makeMove,
   isMyTurn,
   getMyPlayerColor,
-  isMyPlayerColor,
   onPlayerWin,
   winner,
   broadcastWinner,
-  shouldManageTurns,
+  turnMode,
   endTurn,
   actionsThisTurn,
   setActionsThisTurn,
 }) => {
   const [linkMode, setLinkMode] = useState(false);
   const [firstPeg, setFirstPeg] = useState(null);
-  const [secondLinkClick, setSecondLinkClick] = useState(false);
-  const [placedPegThisTurn, setPlacedPegThisTurn] = useState(false);
+  const [havePlacedPeg, setHavePlacedPeg] = useState(false);
 
   function handleHoleClick(e) {
     if (!isMyTurn()) {
@@ -48,47 +47,35 @@ const TwixtBoard = ({
 
     if (linkMode) {
       console.log("link mode");
-      handleLinkMode(b, row, col, hole.color);
+      handleLinkMode(b, row, col);
     } else {
       console.log("peg mode");
-      handlePegMode(b, row, col, hole.color);
+      handlePegMode(b, row, col, hole);
     }
   }
 
-  function handlePegMode(b, row, col, color) {
-    if (color === "empty") {
-      if (shouldManageTurns && placedPegThisTurn) {
-        console.log("you already placed a peg this turn");
-      } else if (!isAcrossThreshold(row, col, getMyPlayerColor(), false)) {
-        b[row][col].color = getMyPlayerColor();
-        makeMove(b);
-        shouldManageTurns && setPlacedPegThisTurn(true);
-        setActionsThisTurn((a) => a.concat({ action: "peg", row, col }));
-      }
-    } else if (isMyPlayerColor(color)) {
+  function handlePegMode(b, row, col, hole) {
+    let playerColor = getMyPlayerColor();
+    if (canPlacePeg(hole, row, col, playerColor, turnMode, havePlacedPeg)) {
+      hole.color = playerColor;
+      makeMove(b);
+      turnMode && setHavePlacedPeg(true);
+      setActionsThisTurn((a) => a.concat({ action: "peg", row, col }));
+    } else if (canStartLink(hole, playerColor)) {
       console.log("switching to link mode");
-      setLinkMode(true);
       startLink(b, row, col);
     }
   }
 
-  function handleLinkMode(b, row, col, color) {
-    if (secondLinkClick) {
-      if (singleLink(b, row, col)) {
-        let link = b[firstPeg.row][firstPeg.col].legalLinks.pop();
-        completeLink(b, link.row, link.col);
-      } else if (canLink(firstPeg, { row, col }, b)) {
-        completeLink(b, row, col);
-      } else {
-        console.log("couldn't link", firstPeg, "to", { row, col });
-        makeMove(exitLinkMode(b));
-      }
+  function handleLinkMode(b, row, col) {
+    if (singleLink(b, row, col)) {
+      let link = b[firstPeg.row][firstPeg.col].legalLinks.pop();
+      completeLink(b, link.row, link.col);
+    } else if (canLink(firstPeg, { row, col }, b)) {
+      completeLink(b, row, col);
     } else {
-      if (isMyPlayerColor(color)) {
-        startLink(b, row, col);
-      } else {
-        console.log(`${getMyPlayerColor()} can't start link with ${color} peg`);
-      }
+      console.log("couldn't link", firstPeg, "to", { row, col });
+      makeMove(exitLinkMode(b));
     }
   }
 
@@ -104,7 +91,7 @@ const TwixtBoard = ({
   function startLink(b, row, col) {
     console.log(`set first peg: (${row},${col})`);
     setFirstPeg({ row, col });
-    setSecondLinkClick(true);
+    setLinkMode(true);
     makeMove(togglePossibleLinks(row, col, b, true));
   }
 
@@ -133,7 +120,6 @@ const TwixtBoard = ({
       b = togglePossibleLinks(firstPeg.row, firstPeg.col, b, false);
     }
     setLinkMode(false);
-    setSecondLinkClick(false);
     setFirstPeg(null);
     return b;
   }
@@ -144,15 +130,15 @@ const TwixtBoard = ({
 
     broadcastWinner(null);
     makeMove(getInitialBoard());
-    shouldManageTurns && setPlacedPegThisTurn(false);
+    turnMode && setHavePlacedPeg(false);
 
     setActionsThisTurn((a) =>
-      a.concat({ action: "reset", prevBoard, winner, placedPegThisTurn })
+      a.concat({ action: "reset", prevBoard, winner, havePlacedPeg })
     );
   }
 
   function endMyTurn() {
-    setPlacedPegThisTurn(false);
+    setHavePlacedPeg(false);
     endTurn();
   }
 
@@ -190,7 +176,7 @@ const TwixtBoard = ({
       switch (lastAction.action) {
         case "peg":
           modifiedBoard = removePeg(b, lastAction.row, lastAction.col);
-          shouldManageTurns && setPlacedPegThisTurn(false);
+          turnMode && setHavePlacedPeg(false);
           break;
         case "link":
           modifiedBoard = unlink(
@@ -202,8 +188,7 @@ const TwixtBoard = ({
         case "reset":
           modifiedBoard = lastAction.prevBoard;
           broadcastWinner(lastAction.winner);
-          shouldManageTurns &&
-            setPlacedPegThisTurn(lastAction.placedPegThisTurn);
+          turnMode && setHavePlacedPeg(lastAction.havePlacedPeg);
           break;
         default:
           console.log("tried to undo unexpected action");
@@ -259,9 +244,9 @@ const TwixtBoard = ({
                   col={j}
                   playerColor={getMyPlayerColor()}
                   isMyTurn={isMyTurn()}
-                  secondLinkClick={secondLinkClick}
-                  turns={shouldManageTurns}
-                  placedPeg={placedPegThisTurn}
+                  linkMode={linkMode}
+                  turns={turnMode}
+                  placedPeg={havePlacedPeg}
                 />
               )
           )
@@ -290,7 +275,7 @@ const TwixtBoard = ({
       ) : (
         <button disabled>Undo</button>
       )}
-      {shouldManageTurns &&
+      {turnMode &&
         (isMyTurn() ? (
           <button onClick={endMyTurn}>End Turn</button>
         ) : (
