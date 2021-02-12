@@ -139,6 +139,7 @@ const TwixtBoard = ({
 
   function endMyTurn() {
     setHavePlacedPeg(false);
+    linkMode && makeMove(exitLinkMode());
     endTurn();
   }
 

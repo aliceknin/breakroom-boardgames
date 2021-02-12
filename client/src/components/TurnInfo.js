@@ -14,12 +14,24 @@ const TurnInfo = ({
     return role === "spectator" ? `You're a ${role}` : `You're playing ${role}`;
   }
 
+  function whoseTurnIsIt() {
+    let currPlayer;
+    if (currentPlayer) {
+      if (currentPlayer[0] === getMyPlayerColor()) {
+        return "your turn!";
+      } else {
+        currPlayer = currentPlayer[0];
+      }
+    } else {
+      currPlayer = "no-one";
+    }
+    return `${currPlayer}'s turn.`;
+  }
+
   return (
     <div className="turn-info">
       <div className="player-info">
-        {turnMode && (
-          <h3>It's {currentPlayer ? currentPlayer[0] : "no-one"}'s turn.</h3>
-        )}
+        {turnMode && <h3>It's {whoseTurnIsIt()}</h3>}
         <button onClick={toggleTurnMode}>
           {turnMode ? "Stop Turns" : "Manage Turns"}
         </button>

@@ -10,7 +10,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [players, setPlayers] = useState({});
-  const [myColor, setMyColor] = useState(true);
+  const [myRole, setMyRole] = useState(0);
   const [winner, setWinner] = useState(null);
 
   useEffect(() => {
@@ -87,7 +87,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
     if (turnMode) {
       return getTurnBasedPlayerColor();
     } else {
-      return myColor ? "red" : "black";
+      return roles[myRole];
     }
   }
 
@@ -96,7 +96,8 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
   }
 
   function switchPlayer() {
-    setMyColor((c) => !c);
+    let role = myRole >= roles.length - 1 ? 0 : myRole + 1;
+    setMyRole(role);
   }
 
   function isMyTurn() {
@@ -117,7 +118,6 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
 
   function toggleTurnMode() {
     console.log("setting turn mode...");
-    setMyColor(getTurnBasedPlayerColor() === "red");
     socket.emit("set turn mode", {
       turnMode: !turnMode,
       roomName,
