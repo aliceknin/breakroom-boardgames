@@ -11,7 +11,6 @@ const io = require("socket.io")(server, {
 
 const PORT = process.env.PORT || 4005;
 
-let userCount = 0;
 let roomContents = {};
 let userNames = {};
 
@@ -125,8 +124,6 @@ function leaveGame(playerKey, roomName) {
 
 io.on("connection", (socket) => {
   console.log("a user connected");
-  userCount++;
-  io.emit("user joined", userCount);
 
   socket.on("join room", ({ roomName, userName }, ack) => {
     userNames[socket.id] = userName;
@@ -170,12 +167,6 @@ io.on("connection", (socket) => {
     }
     emitInitalGameState(room, true, socket);
   });
-
-  let secondsSinceConnection = 0;
-  let interval = setInterval(() => {
-    secondsSinceConnection++;
-    socket.emit("count", secondsSinceConnection);
-  }, 1000);
 
   socket.on("msg", (msg) => {
     broadcastToRoom(msg, msg.roomName);
@@ -230,9 +221,6 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
-    clearInterval(interval);
-    userCount--;
-    io.emit("user left", userCount);
   });
 });
 
