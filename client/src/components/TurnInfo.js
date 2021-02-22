@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useContext } from "react";
+import RoomContext from "../contexts/RoomContext";
 
 const TurnInfo = ({
   turnMode,
@@ -8,6 +9,8 @@ const TurnInfo = ({
   getMyPlayerColor,
   winner,
 }) => {
+  const { connected } = useContext(RoomContext);
+
   function myRole() {
     let role = getMyPlayerColor();
 
@@ -32,10 +35,14 @@ const TurnInfo = ({
     <div className="turn-info">
       <div className="player-info">
         {turnMode && <h3>It's {whoseTurnIsIt()}</h3>}
-        <button onClick={toggleTurnMode}>
+        <button onClick={toggleTurnMode} disabled={!connected}>
           {turnMode ? "Stop Turns" : "Manage Turns"}
         </button>
-        {!turnMode && <button onClick={switchPlayer}>Switch Player</button>}
+        {!turnMode && (
+          <button onClick={switchPlayer} disabled={!connected}>
+            Switch Player
+          </button>
+        )}
         <h3>{myRole()}.</h3>
       </div>
     </div>

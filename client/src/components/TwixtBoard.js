@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import TwixtHole from "./TwixtHole";
 import hasPlayerWon from "../utils/TwixtWinCondition";
 import {
@@ -11,6 +11,7 @@ import {
 } from "../utils/TwixtLinkUtils";
 import "../styles/Twixt.scss";
 import Overlay from "./Overlay";
+import RoomContext from "../contexts/RoomContext";
 
 const TwixtBoard = ({
   board,
@@ -29,6 +30,7 @@ const TwixtBoard = ({
   const [linkMode, setLinkMode] = useState(false);
   const [firstPeg, setFirstPeg] = useState(null);
   const [havePlacedPeg, setHavePlacedPeg] = useState(false);
+  const { connected } = useContext(RoomContext);
 
   function handleHoleClick(e) {
     if (!isMyTurn()) {
@@ -231,6 +233,9 @@ const TwixtBoard = ({
     return board;
   }
 
+  const disabled = !isMyTurn() || !connected;
+  const undoDisabled = actionsThisTurn.length === 0 || !connected;
+
   return (
     <div className="twixt-container">
       <div className="twixt-board" onClick={handleHoleClick}>
@@ -244,7 +249,7 @@ const TwixtBoard = ({
                   row={i}
                   col={j}
                   playerColor={getMyPlayerColor()}
-                  isMyTurn={isMyTurn()}
+                  canMakeMove={isMyTurn() && connected}
                   linkMode={linkMode}
                   turns={turnMode}
                   placedPeg={havePlacedPeg}
@@ -266,22 +271,17 @@ const TwixtBoard = ({
           </Overlay>
         )}
       </div>
-      {isMyTurn() ? (
-        <button onClick={resetBoard}>Reset Board</button>
-      ) : (
-        <button disabled>Reset Board</button>
+      <button onClick={resetBoard} disabled={disabled}>
+        Reset Board
+      </button>
+      <button onClick={undoLastAction} disabled={undoDisabled}>
+        Undo
+      </button>
+      {turnMode && (
+        <button onClick={endMyTurn} disabled={disabled}>
+          End Turn
+        </button>
       )}
-      {actionsThisTurn.length > 0 ? (
-        <button onClick={undoLastAction}>Undo</button>
-      ) : (
-        <button disabled>Undo</button>
-      )}
-      {turnMode &&
-        (isMyTurn() ? (
-          <button onClick={endMyTurn}>End Turn</button>
-        ) : (
-          <button disabled>End Turn</button>
-        ))}
     </div>
   );
 };

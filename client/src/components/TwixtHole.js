@@ -17,7 +17,7 @@ const TwixtHole = (props) => {
   }
 
   function isPossiblePeg(hole, row, col, playerColor) {
-    if (!props.isMyTurn) {
+    if (!props.canMakeMove) {
       return false;
     }
     row = Number(row);

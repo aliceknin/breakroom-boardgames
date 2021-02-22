@@ -1,27 +1,25 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
+import RoomContext from "../contexts/RoomContext";
 import TurnInfo from "./TurnInfo";
 
-const withGameManager = (GameComponent, roles, getInitialBoard) => ({
-  socket,
-  roomName,
-}) => {
-  const [board, setBoard] = useState([]);
+const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
+  const [board, setBoard] = useState(getInitialBoard());
   const [turnMode, setTurnMode] = useState(true);
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [players, setPlayers] = useState({});
   const [myRole, setMyRole] = useState(0);
   const [winner, setWinner] = useState(null);
+  const { socket, roomName, connected } = useContext(RoomContext);
 
   useEffect(() => {
-    console.log("a fresh start");
-    setBoard(getInitialBoard());
-    joinGame(roles);
-
-    function joinGame(roles) {
+    if (connected) {
+      console.log("connected, joining game");
       socket.emit("game joined", { roomName, roles });
     }
+  }, [socket, roomName, connected]);
 
+  useEffect(() => {
     function gameStateChange(newState) {
       console.log("the game's state changed!");
       newState && setBoard(newState);
@@ -40,7 +38,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => ({
     function onRoomJoined(data) {
       if (data.roomName === roomName && data.userName === socket.userName) {
         console.log("joined room, trying to join game");
-        joinGame(roles);
+        socket.emit("game joined", { roomName, roles });
       }
     }
 

@@ -18,12 +18,17 @@
   border-radius: 7px;
   background-color: hsl(205, 80, 85);
 
-  &:hover,
+  &:hover:not(:disabled),
   &:focus {
     cursor: pointer;
     background-color: hsl(20, 80, 50);
     color: white;
     outline: none;
+  }
+
+  &:disabled {
+    background-color: hsl(20, 20, 80);
+    color: white;
   }
 }
 
@@ -92,7 +97,7 @@
   button {
     border: none;
     padding: 1em;
-    &:hover,
+    &:hover:not(:disabled),
     &:focus {
       outline: none;
     }
@@ -107,12 +112,20 @@
       color: hsl(20, 15, 60);
     }
 
-    &:hover,
+    &:hover:not(:disabled),
     &:focus {
       background-color: white;
 
       &::placeholder {
         color: hsl(0, 0, 55);
+      }
+    }
+
+    &:disabled {
+      background-color: hsl(0, 0, 95);
+
+      &::placeholder {
+        color: hsl(0, 0, 75);
       }
     }
   }
@@ -122,10 +135,14 @@
     background-color: hsl(20, 80, 50);
     color: white;
 
-    &:hover,
+    &:hover:not(:disabled),
     &:focus {
       cursor: pointer;
       background-color: hsl(205, 80, 70);
+    }
+
+    &:disabled {
+      background-color: hsl(20, 20, 80);
     }
   }
 }

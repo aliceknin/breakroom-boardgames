@@ -1,6 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
+import RoomContext from "../contexts/RoomContext";
 
 const ChatInput = (props) => {
+  const { connected } = useContext(RoomContext);
+
   return (
     <form className="chat-form" onSubmit={props.onSubmit}>
       <input
@@ -9,8 +12,11 @@ const ChatInput = (props) => {
         placeholder="Say something to the room!"
         value={props.value}
         onChange={props.onChange}
+        disabled={!connected}
       />
-      <button type="submit">Send</button>
+      <button type="submit" disabled={!connected}>
+        Send
+      </button>
     </form>
   );
 };

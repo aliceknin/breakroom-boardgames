@@ -97,14 +97,18 @@ function* makeTurnIterator(filledRoles) {
 }
 
 function goToNextTurn(room) {
-  room.whoseTurnIsIt = room.turnIterator.next().value;
-  io.to(room.name).emit("turn change", room.whoseTurnIsIt);
-  console.log(`it's ${room.whoseTurnIsIt}'s turn in ${room.name}`);
+  if (room?.turnIterator) {
+    room.whoseTurnIsIt = room.turnIterator.next().value;
+    io.to(room.name).emit("turn change", room.whoseTurnIsIt);
+    console.log(`it's ${room.whoseTurnIsIt}'s turn in ${room.name}`);
+  } else {
+    console.log("tried to go to next turn with no turn iterator");
+  }
 }
 
 function leaveGame(playerKey, roomName) {
   let room = roomContents[roomName];
-  let players = room.players;
+  let players = room?.players;
 
   if (players && players[playerKey]) {
     let role = players[playerKey];
@@ -147,11 +151,19 @@ io.on("connection", (socket) => {
   });
 
   socket.on("chat joined", (roomName) => {
-    console.log(roomContents[roomName].chat.map((msg) => msg.msg));
-    socket.emit("replace msgs", roomContents[roomName].chat);
+    if (socket.rooms.has(roomName)) {
+      console.log(roomContents[roomName].chat.map((msg) => msg.msg));
+      socket.emit("replace msgs", roomContents[roomName].chat);
+    } else {
+      console.log("tried to join chat before joining room");
+    }
   });
 
   socket.on("game joined", ({ roomName, roles }) => {
+    if (!socket.rooms.has(roomName)) {
+      console.log("tried to join game before joining room");
+      return;
+    }
     let room = ensureRoom(roomName);
     let playerKey = socket.userName || socket.id;
 
