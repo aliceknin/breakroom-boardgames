@@ -31,6 +31,7 @@ function broadcastToRoom(msg, roomName) {
   }
   room.prevSender = msg.from;
   room.chat.push(msg);
+  console.log(msg.msg);
   io.to(roomName).emit("broadcast", msg);
 }
 
@@ -45,13 +46,13 @@ function logRoom(roomName) {
 }
 
 function emitInitalGameState(room, includeTurns, socket) {
-  socket.emit("game state change", room.gameState);
+  "gameState" in room && socket.emit("game state change", room.gameState);
   "winner" in room && socket.emit("someone won", room.winner);
 
   if (includeTurns) {
     console.log("players:", room.players);
     console.log("filled roles:", room.filledRoles);
-    io.to(room.name).emit("player change", room.players);
+    "players" in room && io.to(room.name).emit("player change", room.players);
     "turnMode" in room && socket.emit("broadcast turn mode", room.turnMode);
   }
 }
@@ -106,11 +107,10 @@ function goToNextTurn(room) {
   }
 }
 
-function leaveGame(playerKey, roomName) {
-  let room = roomContents[roomName];
+function leaveGame(playerKey, room) {
   let players = room?.players;
 
-  if (players && players[playerKey]) {
+  if (players?.[playerKey]) {
     let role = players[playerKey];
 
     if (role !== "spectator" && room.filledRoles.get(role) === playerKey) {
@@ -122,7 +122,7 @@ function leaveGame(playerKey, roomName) {
     }
 
     delete players[playerKey];
-    io.to(roomName).emit("player change", players);
+    io.to(room.name).emit("player change", players);
   }
 }
 
@@ -138,16 +138,12 @@ io.on("connection", (socket) => {
 
       socket.join(roomName);
       ack && ack(room);
+      broadcastToRoom(`${userName} joined ${roomName}!`, roomName);
 
       socket.emit("room joined", { roomName, userName });
       socket.emit("replace msgs", room.chat);
       logRoom(roomName);
     }
-  });
-
-  socket.on("room joined", ({ roomName, userName }) => {
-    console.log(`${userName || ""} joined`, roomName);
-    broadcastToRoom(`${userName} joined ${roomName}!`, roomName);
   });
 
   socket.on("chat joined", (roomName) => {
@@ -182,7 +178,6 @@ io.on("connection", (socket) => {
 
   socket.on("msg", (msg) => {
     broadcastToRoom(msg, msg.roomName);
-    console.log(msg.msg);
   });
 
   socket.on("clear chat", (roomName) => {
@@ -224,10 +219,13 @@ io.on("connection", (socket) => {
       "disconnecting from",
       socket.rooms
     );
+    let playerKey = socket.userName || socket.id;
     for (let roomName of socket.rooms) {
-      let playerKey = socket.userName || socket.id;
-      broadcastToRoom(`${playerKey} left.`, roomName);
-      leaveGame(playerKey, roomName);
+      let room = roomContents[roomName];
+      if (room) {
+        room.chat && broadcastToRoom(`${playerKey} left.`, roomName);
+        room.players && leaveGame(playerKey, room);
+      }
     }
   });
 

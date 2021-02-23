@@ -27,7 +27,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
 
     function onPlayerChange(players) {
       console.log("the game's players changed!");
-      setPlayers(players);
+      players && setPlayers(players);
     }
 
     function onTurnChange(newCurrentPlayer) {

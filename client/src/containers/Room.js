@@ -36,7 +36,6 @@ const Room = () => {
           if (room.name === roomName) {
             setIsLoading(false);
             setConnected(true);
-            socket.emit("room joined", { roomName, userName: socket.userName });
             console.log("room joined: ", roomName);
           } else {
             console.log("failed to join", roomName);
@@ -54,11 +53,9 @@ const Room = () => {
       console.log("connect error:", error);
       setConnected(false);
 
-      if (isLoading) {
-        setIsLoading(false);
-        // do something to distinguish an error when you've already
-        // joined from an error trying to join (as in, nothing's loaded yet)
-      }
+      setIsLoading(false);
+      // do something to distinguish an error when you've already
+      // joined from an error trying to join (as in, nothing's loaded yet)
     }
 
     function cleanup() {
@@ -84,7 +81,7 @@ const Room = () => {
       cleanup();
       window.removeEventListener("beforeunload", cleanupBeforeUnload);
     };
-  }, [roomName, isLoading]);
+  }, [roomName]);
 
   return (
     <LoadingWrapper isLoading={isLoading}>
