@@ -1,14 +1,16 @@
-.twixt-board {
+.game-manager {
   --number-of-columns: 24;
-  --col-size: 3vmin;
+  --base-col-size: 3vmin;
+  --min-col-size: 12px;
+  --col-size: max(var(--base-col-size), var(--min-col-size));
   --board-size: calc(
     var(--col-size) * var(--number-of-columns) + var(--col-size) * 2
   );
 }
 
 @media (orientation: landscape) {
-  .twixt-board {
-    --col-size: 2.6vmin;
+  .game-manager {
+    --base-col-size: 2.6vmin;
   }
 }
 
@@ -206,7 +208,9 @@
     &:focus {
       color: white;
       background-color: hsl(20, 80, 50);
-      box-shadow: 0 5px 15px hsla(0, 0, 0, 0.15);
+      box-shadow: inset 0px -2px 1px hsla(0, 0, 0, 0.15),
+        inset 0px 2px 1px hsla(20, 70, 70, 0.8), 0 5px 15px hsla(0, 0, 0, 0.15);
+      outline: none;
     }
     &:disabled {
       color: hsl(0, 0, 55);
@@ -221,6 +225,7 @@
 
 .turn-info {
   width: fit-content;
+  min-width: var(--board-size);
   margin: 0 auto;
 
   .player-info {
@@ -247,6 +252,7 @@
       &:hover:not(:disabled),
       &:focus {
         color: white;
+        outline: none;
       }
 
       &:disabled {
@@ -258,5 +264,6 @@
 
   h3 {
     margin: 0;
+    text-align: center;
   }
 }
