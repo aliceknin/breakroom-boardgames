@@ -45,6 +45,19 @@ function logRoom(roomName) {
   }
 }
 
+async function logRooms() {
+  try {
+    const allSockets = await io.allSockets();
+    for (let roomName of io.sockets.adapter.rooms.keys()) {
+      if (!allSockets.has(roomName)) {
+        logRoom(roomName);
+      }
+    }
+  } catch (err) {
+    console.log("couldn't log rooms:", err);
+  }
+}
+
 function emitInitalGameState(room, includeTurns, socket) {
   "gameState" in room && socket.emit("game state change", room.gameState);
   "winner" in room && socket.emit("someone won", room.winner);
@@ -60,9 +73,7 @@ function emitInitalGameState(room, includeTurns, socket) {
 function initRoles(playerKey, room, roles) {
   room.turnMode = true;
   room.openRoles = roles;
-  let filledRoles = fillRole(playerKey, room);
-  room.turnIterator = makeTurnIterator(filledRoles);
-  goToNextTurn(room);
+  fillRole(playerKey, room);
 }
 
 function assignExistingRole(playerKey, room, socket) {
@@ -80,28 +91,37 @@ function assignExistingRole(playerKey, room, socket) {
 function fillRole(playerKey, room) {
   let role = room.openRoles.pop();
 
-  room.filledRoles = room.filledRoles || new Map();
-  room.filledRoles.set(role, playerKey);
-
   room.players = room.players || {};
   room.players[playerKey] = role;
 
-  return room.filledRoles;
+  room.filledRoles = room.filledRoles || new Map();
+  room.filledRoles.set(role, playerKey);
+
+  room.turnIterator = room.turnIterator || makeTurnIterator(room.filledRoles);
+  !room.whoseTurnIsIt && goToNextTurn(room);
 }
 
 function* makeTurnIterator(filledRoles) {
   while (true) {
-    for (let role of filledRoles) {
-      yield role;
+    if (filledRoles.size > 0) {
+      for (let role of filledRoles) {
+        yield role;
+      }
+    } else {
+      yield null;
     }
   }
 }
 
 function goToNextTurn(room) {
   if (room?.turnIterator) {
-    room.whoseTurnIsIt = room.turnIterator.next().value;
-    io.to(room.name).emit("turn change", room.whoseTurnIsIt);
-    console.log(`it's ${room.whoseTurnIsIt}'s turn in ${room.name}`);
+    let nextPlayer = room.turnIterator.next().value;
+    room.whoseTurnIsIt = nextPlayer;
+
+    if (nextPlayer) {
+      io.to(room.name).emit("turn change", nextPlayer);
+      console.log(`it's ${nextPlayer}'s turn in ${room.name}`);
+    }
   } else {
     console.log("tried to go to next turn with no turn iterator");
   }
@@ -116,7 +136,7 @@ function leaveGame(playerKey, room) {
     if (role !== "spectator" && room.filledRoles.get(role) === playerKey) {
       room.openRoles.push(role);
       room.filledRoles.delete(role);
-      if (room.whoseTurnIsIt[1] === playerKey) {
+      if (room.whoseTurnIsIt?.[1] === playerKey) {
         goToNextTurn(room);
       }
     }
@@ -214,15 +234,11 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnecting", () => {
-    console.log(
-      socket.userName || socket.id,
-      "disconnecting from",
-      socket.rooms
-    );
     let playerKey = socket.userName || socket.id;
     for (let roomName of socket.rooms) {
       let room = roomContents[roomName];
       if (room) {
+        console.log(`${playerKey} is leaving ${roomName}`);
         room.chat && broadcastToRoom(`${playerKey} left.`, roomName);
         room.players && leaveGame(playerKey, room);
       }
