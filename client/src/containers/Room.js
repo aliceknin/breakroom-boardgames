@@ -14,6 +14,7 @@ const ENDPOINT = "http://localhost:4005";
 const Room = () => {
   const [socket, setSocket] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [hasFailed, setHasFailed] = useState(false);
   const [connected, setConnected] = useState(false);
   const { roomName } = useParams();
   const [mode, setMode] = useState("overlay");
@@ -35,6 +36,7 @@ const Room = () => {
         (room) => {
           if (room.name === roomName) {
             setIsLoading(false);
+            setHasFailed(false);
             setConnected(true);
             console.log("room joined: ", roomName);
           } else {
@@ -53,9 +55,10 @@ const Room = () => {
       console.log("connect error:", error);
       setConnected(false);
 
-      setIsLoading(false);
-      // do something to distinguish an error when you've already
-      // joined from an error trying to join (as in, nothing's loaded yet)
+      if (isLoading) {
+        setIsLoading(false);
+        setHasFailed(true);
+      }
     }
 
     function cleanup() {
@@ -66,25 +69,27 @@ const Room = () => {
       socket.disconnect();
     }
 
-    function cleanupBeforeUnload() {
-      console.log("cleaning up before unload");
-      cleanup();
-    }
-
     socket.on("connect", onConnect);
     socket.on("connect_error", onConnectError);
     socket.on("disconnect", onDisconnect);
-    window.addEventListener("beforeunload", cleanupBeforeUnload);
+    window.addEventListener("beforeunload", cleanup);
 
     return () => {
       console.log("unmounting...");
       cleanup();
-      window.removeEventListener("beforeunload", cleanupBeforeUnload);
+      window.removeEventListener("beforeunload", cleanup);
     };
+    /* since isLoading is used in an event listener rather than just the 
+       useEffect, I don't actually want this to be called when it changes*/
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomName]);
 
   return (
-    <LoadingWrapper isLoading={isLoading}>
+    <LoadingWrapper
+      isLoading={isLoading}
+      hasFailed={hasFailed}
+      errorMessage="Something went wrong connecting to the server. Try restarting it?"
+    >
       <RoomContext.Provider value={{ socket, roomName, connected }}>
         <div className={"room " + mode}>
           <div className="content-container">

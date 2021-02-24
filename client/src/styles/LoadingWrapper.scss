@@ -1,4 +1,4 @@
-.loading {
+.wrapper {
   position: absolute;
   height: 100%;
   width: 100%;
@@ -7,6 +7,15 @@
   justify-content: center;
   align-items: center;
   box-sizing: border-box;
+  padding: 0 10% 10% 10%;
+
+  p {
+    font-size: 1.5em;
+  }
+}
+
+.loading {
+  color: hsl(0, 0, 50%);
   background: linear-gradient(
     hsl(0, 0, 95%) 25%,
     hsl(0, 0, 97%) 31.25%,
@@ -14,12 +23,6 @@
   );
   background-size: 100% 400%;
   animation: 5s ease-in infinite backwards shine;
-
-  p {
-    height: 25%;
-    font-size: 1.5em;
-    color: hsl(0, 0, 50%);
-  }
 
   span {
     display: inline-block;
@@ -33,6 +36,11 @@
       animation-delay: 0.4s;
     }
   }
+}
+
+.failed {
+  color: hsl(20, 60, 45);
+  background-color: hsl(20, 60, 95);
 }
 
 @keyframes shine {
