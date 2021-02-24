@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import GenerateName from "project-name-generator";
 import Chat from "../components/Chat";
-import Window from "../components/Window";
+import WindowLayout from "../components/WindowLayout";
 import Twixt from "../components/Twixt";
 import "../styles/Room.scss";
 import RoomContext from "../contexts/RoomContext";
@@ -17,7 +17,6 @@ const Room = () => {
   const [hasFailed, setHasFailed] = useState(false);
   const [connected, setConnected] = useState(false);
   const { roomName } = useParams();
-  const [mode, setMode] = useState("overlay");
 
   useEffect(() => {
     console.log("trying to connect...");
@@ -91,19 +90,20 @@ const Room = () => {
       errorMessage="Something went wrong connecting to the server. Try restarting it?"
     >
       <RoomContext.Provider value={{ socket, roomName, connected }}>
-        <div className={"room " + mode}>
-          <div className="content-container">
-            {!connected && <div className="disconnected">Disconnected</div>}
-            <h1>
-              Welcome to room {roomName}
-              {socket?.userName && ", " + socket.userName}!
-            </h1>
-            <Twixt />
-          </div>
-          <Window mode={mode} setMode={setMode}>
-            <Chat />
-          </Window>
-        </div>
+        <WindowLayout
+          mainContent={
+            <div className="room">
+              {!connected && <div className="disconnected">Disconnected</div>}
+              <h1>
+                Welcome to room {roomName}
+                {socket?.userName && ", " + socket.userName}!
+              </h1>
+              <Twixt />
+            </div>
+          }
+          windowContent={<Chat />}
+          windowTitle="Room Chat"
+        />
       </RoomContext.Provider>
     </LoadingWrapper>
   );

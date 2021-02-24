@@ -1,6 +1,7 @@
 .game-manager {
   --number-of-columns: 24;
-  --base-col-size: 3vmin;
+  --vmin-multiplier: 3;
+  --base-col-size: calc(var(--vmin, 1vmin) * var(--vmin-multiplier));
   --min-col-size: 12px;
   --col-size: max(var(--base-col-size), var(--min-col-size));
   --board-size: calc(
@@ -10,7 +11,7 @@
 
 @media (orientation: landscape) {
   .game-manager {
-    --base-col-size: 2.6vmin;
+    --vmin-multiplier: 2.6;
   }
 }
 

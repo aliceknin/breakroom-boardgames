@@ -1,18 +1,17 @@
-import React, { useState } from "react";
+import React from "react";
 import "../styles/Window.scss";
 
-const Window = ({ children, mode, setMode }) => {
-  const [open, setOpen] = useState(true);
-
-  function setViewMode(mode) {
+const Window = ({ children, title, viewMode, setViewMode, open, setOpen }) => {
+  function handleClick(e) {
+    let viewMode = e.target.closest("button").className;
     setOpen(true);
-    setMode(mode);
+    setViewMode(viewMode);
   }
 
   return (
-    <div className={"window " + mode + (open ? " open" : " closed")}>
+    <aside className={`window ${viewMode} ${open ? "open" : "closed"}`}>
       <div className="bar">
-        <span className="title">Room Chat</span>
+        <span className="title">{title}</span>
         <span className="buttons-container">
           <button
             className={open ? "open" : "closed"}
@@ -20,31 +19,25 @@ const Window = ({ children, mode, setMode }) => {
           >
             {open ? "_" : "^"}
           </button>
-          {mode !== "overlay" && (
-            <button className="overlay" onClick={() => setViewMode("overlay")}>
+          {viewMode !== "overlay" && (
+            <button className="overlay" onClick={handleClick}>
               O
             </button>
           )}
-          {mode !== "dock-side" && (
-            <button
-              className="dock-side"
-              onClick={() => setViewMode("dock-side")}
-            >
+          {viewMode !== "dock-side" && (
+            <button className="dock-side" onClick={handleClick}>
               _|
             </button>
           )}
-          {mode !== "dock-bottom" && (
-            <button
-              className="dock-bottom"
-              onClick={() => setViewMode("dock-bottom")}
-            >
+          {viewMode !== "dock-bottom" && (
+            <button className="dock-bottom" onClick={handleClick}>
               |_|
             </button>
           )}
         </span>
       </div>
       <div className={open ? "content-open" : "content-closed"}>{children}</div>
-    </div>
+    </aside>
   );
 };
 
