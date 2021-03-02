@@ -19,21 +19,15 @@ const Window = ({ children, title, viewMode, setViewMode, open, setOpen }) => {
           >
             {open ? "_" : "^"}
           </button>
-          {viewMode !== "overlay" && (
-            <button className="overlay" onClick={handleClick}>
-              O
-            </button>
-          )}
-          {viewMode !== "dock-side" && (
-            <button className="dock-side" onClick={handleClick}>
-              _|
-            </button>
-          )}
-          {viewMode !== "dock-bottom" && (
-            <button className="dock-bottom" onClick={handleClick}>
-              |_|
-            </button>
-          )}
+          <span className="mode-buttons" onClick={handleClick}>
+            {viewMode !== "overlay" && <button className="overlay">O</button>}
+            {viewMode !== "dock-side" && (
+              <button className="dock-side">_|</button>
+            )}
+            {viewMode !== "dock-bottom" && (
+              <button className="dock-bottom">|_|</button>
+            )}
+          </span>
         </span>
       </div>
       <div className={open ? "content-open" : "content-closed"}>{children}</div>

@@ -74,6 +74,11 @@
     }
   }
 
+  .content-open {
+    display: flex;
+    align-items: stretch;
+  }
+
   .content-closed {
     max-height: 0;
     overflow: hidden;

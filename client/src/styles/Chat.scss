@@ -4,7 +4,8 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  // height: 100%;
+  flex-grow: 2;
   font-size: 14px;
 }
 
@@ -97,6 +98,7 @@
   button {
     border: none;
     padding: 1em;
+    margin: 0;
     &:hover:not(:disabled),
     &:focus {
       outline: none;
