@@ -13,6 +13,7 @@ const Home = () => {
   function handleSubmit(e) {
     e.preventDefault();
     // some kind of input validation
+    setRoomName((r) => r.toLowerCase());
     setSubmitted(true);
   }
 

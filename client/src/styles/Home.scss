@@ -34,7 +34,7 @@
   .room-form {
     display: flex;
     flex-wrap: nowrap;
-    max-width: 500px;
+    max-width: Min(90vw, 500px);
 
     input,
     button {
@@ -51,6 +51,7 @@
       border-radius: 7px 0 0 7px;
       flex-grow: 2;
       margin-right: 0;
+      min-width: 70%;
 
       &::placeholder {
         color: hsl(20, 15, 55);
