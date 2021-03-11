@@ -58,6 +58,23 @@ async function logRooms() {
   }
 }
 
+function joinGame(roomName, roles, socket) {
+  let room = ensureRoom(roomName);
+  let playerKey = socket.userName || socket.id;
+
+  if (room.openRoles) {
+    assignExistingRole(playerKey, room, socket);
+  } else {
+    if (roles && roles.length > 0) {
+      initRoles(playerKey, room, roles);
+    } else {
+      emitInitalGameState(room, false, socket);
+      return;
+    }
+  }
+  emitInitalGameState(room, true, socket);
+}
+
 function emitInitalGameState(room, includeTurns, socket) {
   "gameState" in room && socket.emit("game state change", room.gameState);
   "winner" in room && socket.emit("someone won", room.winner);
@@ -176,24 +193,9 @@ io.on("connection", (socket) => {
   });
 
   socket.on("game joined", ({ roomName, roles }) => {
-    if (!socket.rooms.has(roomName)) {
-      console.log("tried to join game before joining room");
-      return;
-    }
-    let room = ensureRoom(roomName);
-    let playerKey = socket.userName || socket.id;
-
-    if (room.openRoles) {
-      assignExistingRole(playerKey, room, socket);
-    } else {
-      if (roles && roles.length > 0) {
-        initRoles(playerKey, room, roles);
-      } else {
-        emitInitalGameState(room, false, socket);
-        return;
-      }
-    }
-    emitInitalGameState(room, true, socket);
+    socket.rooms.has(roomName)
+      ? joinGame(roomName, roles, socket)
+      : console.log("tried to join game before joining room");
   });
 
   socket.on("msg", (msg) => {
@@ -213,16 +215,17 @@ io.on("connection", (socket) => {
   });
 
   socket.on("turn ended", (roomName) => {
-    let room = roomContents[roomName];
-    goToNextTurn(room);
+    goToNextTurn(roomContents[roomName]);
   });
 
   socket.on("we won", ({ player, roomName }) => {
+    let room = roomContents[roomName];
     console.log(player, "won in ", roomName);
-    roomContents[roomName].winner = player;
+    room.winner = player;
     socket.to(roomName).emit("someone won", player);
-    if (player && roomContents[roomName].turnMode) {
-      roomContents[roomName].turnMode = false;
+
+    if (player && room.turnMode) {
+      room.turnMode = false;
       io.to(roomName).emit("broadcast turn mode", false);
     }
   });
@@ -235,8 +238,10 @@ io.on("connection", (socket) => {
 
   socket.on("disconnecting", () => {
     let playerKey = socket.userName || socket.id;
+
     for (let roomName of socket.rooms) {
       let room = roomContents[roomName];
+
       if (room) {
         console.log(`${playerKey} is leaving ${roomName}`);
         room.chat && broadcastToRoom(`${playerKey} left.`, roomName);
