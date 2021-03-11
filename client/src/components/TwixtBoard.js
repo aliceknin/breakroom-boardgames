@@ -271,17 +271,19 @@ const TwixtBoard = ({
           </Overlay>
         )}
       </div>
-      <button onClick={resetBoard} disabled={disabled}>
-        Reset Board
-      </button>
-      <button onClick={undoLastAction} disabled={undoDisabled}>
-        Undo
-      </button>
-      {turnMode && (
-        <button onClick={endMyTurn} disabled={disabled}>
-          End Turn
+      <div className="buttons-container">
+        <button onClick={resetBoard} disabled={disabled}>
+          Reset Board
         </button>
-      )}
+        <button onClick={undoLastAction} disabled={undoDisabled}>
+          Undo
+        </button>
+        {turnMode && (
+          <button onClick={endMyTurn} disabled={disabled}>
+            End Turn
+          </button>
+        )}
+      </div>
     </div>
   );
 };

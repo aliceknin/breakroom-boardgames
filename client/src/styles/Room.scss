@@ -1,4 +1,12 @@
 .room {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 2;
+
+  .game-manager {
+    flex-grow: 2;
+  }
+
   .disconnected {
     position: absolute;
     right: 50%;

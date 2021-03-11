@@ -8,6 +8,15 @@
   --min-col-size: 12px;
   --col-size: max(var(--base-col-size), var(--min-col-size));
   --board-size: calc(var(--col-size) * calc(var(--number-of-columns) + 2));
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 2em;
+
+  .twixt-container {
+    flex-grow: 2;
+  }
 }
 
 @media (orientation: landscape) {
@@ -191,9 +200,6 @@
 }
 
 .twixt-container {
-  margin: 0 auto;
-  width: fit-content;
-
   button {
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -228,7 +234,6 @@
 .turn-info {
   width: fit-content;
   min-width: var(--board-size);
-  margin: 0 auto;
 
   .player-info {
     display: flex;
