@@ -1,17 +1,18 @@
 .game-manager {
   --number-of-columns: 24;
-  --vmin-multiplier: 3;
-  --base-col-size: calc(var(--vmin, 1vmin) * var(--vmin-multiplier));
+  --board-vmin: 75;
+  --base-board-size: calc(var(--vmin, 1vmin) * var(--board-vmin));
+  --base-col-size: calc(
+    var(--base-board-size) / calc(var(--number-of-columns) + 2)
+  );
   --min-col-size: 12px;
   --col-size: max(var(--base-col-size), var(--min-col-size));
-  --board-size: calc(
-    var(--col-size) * var(--number-of-columns) + var(--col-size) * 2
-  );
+  --board-size: calc(var(--col-size) * calc(var(--number-of-columns) + 2));
 }
 
 @media (orientation: landscape) {
   .game-manager {
-    --vmin-multiplier: 2.6;
+    --board-vmin: 65;
   }
 }
 
