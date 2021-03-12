@@ -10,27 +10,31 @@ const Window = ({ children, title, viewMode, setViewMode, open, setOpen }) => {
 
   return (
     <aside className={`window ${viewMode} ${open ? "open" : "closed"}`}>
-      <div className="bar">
-        <span className="title">{title}</span>
-        <span className="buttons-container">
-          <button
-            className={open ? "open" : "closed"}
-            onClick={() => setOpen((o) => !o)}
-          >
-            {open ? "_" : "^"}
-          </button>
-          <span className="mode-buttons" onClick={handleClick}>
-            {viewMode !== "overlay" && <button className="overlay">O</button>}
-            {viewMode !== "dock-side" && (
-              <button className="dock-side">_|</button>
-            )}
-            {viewMode !== "dock-bottom" && (
-              <button className="dock-bottom">|_|</button>
-            )}
+      <div className="window-container">
+        <div className="bar">
+          <span className="title">{title}</span>
+          <span className="buttons-container">
+            <button
+              className={open ? "open" : "closed"}
+              onClick={() => setOpen((o) => !o)}
+            >
+              {open ? "_" : "^"}
+            </button>
+            <span className="mode-buttons" onClick={handleClick}>
+              {viewMode !== "overlay" && <button className="overlay">O</button>}
+              {viewMode !== "dock-side" && (
+                <button className="dock-side">_|</button>
+              )}
+              {viewMode !== "dock-bottom" && (
+                <button className="dock-bottom">|_|</button>
+              )}
+            </span>
           </span>
-        </span>
+        </div>
+        <div className={open ? "content-open" : "content-closed"}>
+          {children}
+        </div>
       </div>
-      <div className={open ? "content-open" : "content-closed"}>{children}</div>
     </aside>
   );
 };
