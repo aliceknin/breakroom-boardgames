@@ -8,16 +8,16 @@
     transition: all 0.2s ease;
 
     &:hover {
-      box-shadow: 5px 5px 5px hsla(0, 0, 0, 0.15);
+      box-shadow: 5px 5px 5px hsla(0, 0%, 0%, 15%);
     }
   }
 
   header {
-    background: hsl(205, 80, 45);
+    background: hsl(205, 80%, 45%);
     background: linear-gradient(
-      hsl(205, 80, 35),
-      hsl(205, 80, 45) 10%,
-      hsl(205, 90, 15)
+      hsl(205, 80%, 35%),
+      hsl(205, 80%, 45%) 10%,
+      hsl(205, 90%, 15%)
     );
     min-height: 100vh;
     display: flex;
@@ -25,7 +25,7 @@
     align-items: center;
     justify-content: center;
     font-size: calc(15px + 2vmin);
-    color: hsl(205, 70, 95);
+    color: hsl(205, 70%, 95%);
     padding: 0 10vh 10vh 10vh;
     box-sizing: border-box;
     text-align: center;
@@ -47,14 +47,14 @@
     }
 
     input {
-      background-color: hsl(20, 50, 90);
+      background-color: hsl(20, 50%, 90%);
       border-radius: 7px 0 0 7px;
       flex-grow: 2;
       margin-right: 0;
       min-width: 70%;
 
       &::placeholder {
-        color: hsl(20, 15, 55);
+        color: hsl(20, 15%, 55%);
       }
 
       &:hover,
@@ -62,13 +62,13 @@
         background-color: white;
 
         &::placeholder {
-          color: hsl(0, 0, 55);
+          color: hsl(0, 0%, 55%);
         }
       }
     }
 
     button {
-      background-color: hsl(20, 80, 50);
+      background-color: hsl(20, 80%, 50%);
       border-radius: 0 7px 7px 0;
       margin-left: 0;
     }

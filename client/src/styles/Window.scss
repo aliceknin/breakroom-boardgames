@@ -69,8 +69,8 @@
       right: 20px;
       border-radius: 7px 7px 0 0;
       overflow: hidden;
-      box-shadow: 0px 5px 25px hsla(0, 0, 0, 0.5),
-        0px 5px 5px hsla(0, 0, 0, 0.05);
+      box-shadow: 0px 5px 25px hsla(0, 0%, 0%, 50%),
+        0px 5px 5px hsla(0, 0%, 0%, 5%);
     }
 
     .content-open {
@@ -82,13 +82,13 @@
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
-    background-color: hsl(0, 0, 95%);
-    box-shadow: inset 0px -5px 5px hsla(0, 0, 0, 0.05);
+    background-color: hsl(0, 0%, 95%);
+    box-shadow: inset 0px -5px 5px hsla(0, 0%, 0%, 5%);
 
     .title {
       font-size: 14px;
       font-weight: bold;
-      color: hsl(205, 30, 60%);
+      color: hsl(205, 30%, 60%);
       padding: 0.5em 1em;
     }
 
@@ -101,7 +101,7 @@
 
       &:hover,
       &:focus {
-        background-color: hsl(0, 0, 80%);
+        background-color: hsl(0, 0%, 80%);
         outline: none;
       }
     }

@@ -20,7 +20,7 @@
   .content-container {
     position: relative;
     padding: 0 calc(var(--vw, 1vw) * 10);
-    background-color: hsl(205, 30, 60);
+    background-color: hsl(205, 30%, 60%);
     flex-grow: 2;
     overflow: auto;
     display: flex;
@@ -35,7 +35,7 @@
     }
 
     .content-container {
-      box-shadow: inset -5px -5px 5px hsla(0, 0, 0, 0.15);
+      box-shadow: inset -5px -5px 5px hsla(0, 0%, 0%, 15%);
     }
   }
 
@@ -47,7 +47,7 @@
     }
 
     .content-container {
-      box-shadow: inset 0px -5px 5px hsla(0, 0, 0, 0.15);
+      box-shadow: inset 0px -5px 5px hsla(0, 0%, 0%, 15%);
     }
   }
 }

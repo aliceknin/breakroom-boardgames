@@ -17,9 +17,9 @@
 .loading {
   color: hsl(0, 0, 50%);
   background: linear-gradient(
-    hsl(0, 0, 95%) 25%,
-    hsl(0, 0, 97%) 31.25%,
-    hsl(0, 0, 95%) 37.5%
+    hsl(0, 0%, 95%) 25%,
+    hsl(0, 0%, 97%) 31.25%,
+    hsl(0, 0%, 95%) 37.5%
   );
   background-size: 100% 400%;
   animation: 5s ease-in infinite backwards shine;
@@ -39,8 +39,8 @@
 }
 
 .failed {
-  color: hsl(20, 60, 45);
-  background-color: hsl(20, 60, 95);
+  color: hsl(20, 60%, 45%);
+  background-color: hsl(20, 60%, 95%);
 }
 
 @keyframes shine {
