@@ -163,6 +163,12 @@ function leaveGame(playerKey, room) {
   }
 }
 
+function restartGame(room) {
+  io.to(room.name).emit("restart game");
+  room.gameState = null;
+  room.winner = null;
+}
+
 io.on("connection", (socket) => {
   console.log("a user connected");
 
@@ -231,8 +237,14 @@ io.on("connection", (socket) => {
   });
 
   socket.on("set turn mode", ({ turnMode, roomName }) => {
+    let room = roomContents[roomName];
     console.log("setting turn mode in", roomName, "to", turnMode);
-    roomContents[roomName].turnMode = turnMode;
+    room.turnMode = turnMode;
+
+    if (turnMode && room.winner) {
+      restartGame(room);
+    }
+
     socket.to(roomName).emit("broadcast turn mode", turnMode);
   });
 

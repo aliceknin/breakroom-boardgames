@@ -11,6 +11,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
   const [singlePlayer, setSinglePlayer] = useState(false);
   const [myRole, setMyRole] = useState(0);
   const [winner, setWinner] = useState(null);
+  const [remountKey, setRemountKey] = useState(Math.random());
   const { socket, roomName, connected } = useContext(RoomContext);
 
   useEffect(() => {
@@ -57,6 +58,13 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
       setWinner(player);
     }
 
+    function restartGame() {
+      setBoard(getInitialBoard());
+      setActionsThisTurn([]);
+      setWinner(null);
+      setRemountKey(Math.random());
+    }
+
     console.log("registering game listeners...");
     socket.on("game state change", gameStateChange);
     socket.on("player change", onPlayerChange);
@@ -64,6 +72,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
     socket.on("room joined", onRoomJoined);
     socket.on("broadcast turn mode", onSetTurnMode);
     socket.on("someone won", onWin);
+    socket.on("restart game", restartGame);
 
     return () => {
       console.log("removing game listeners...");
@@ -73,6 +82,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
       socket.off("room joined", onRoomJoined);
       socket.off("broadcast turn mode", onSetTurnMode);
       socket.off("someone won", onWin);
+      socket.off("restart game", restartGame);
     };
   }, [socket, roomName]);
 
@@ -150,6 +160,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
         winner={winner}
       />
       <GameComponent
+        key={remountKey}
         board={board}
         getInitialBoard={getInitialBoard}
         makeMove={makeMove}
