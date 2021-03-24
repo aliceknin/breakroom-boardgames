@@ -1,0 +1,24 @@
+@mixin hover(
+  $selector: "&",
+  $focus: true,
+  $focusDesktop: true,
+  $focusMobile: true
+) {
+  @media (hover: hover) {
+    #{$selector}:hover:not(:disabled) {
+      @content;
+    }
+    @if $focusDesktop and $focus {
+      #{$selector}:focus {
+        @content;
+      }
+    }
+  }
+  @if $focusMobile and $focus {
+    @media (hover: none) {
+      #{$selector}:focus {
+        @content;
+      }
+    }
+  }
+}

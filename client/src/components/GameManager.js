@@ -8,6 +8,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [players, setPlayers] = useState({});
+  const [singlePlayer, setSinglePlayer] = useState(false);
   const [myRole, setMyRole] = useState(0);
   const [winner, setWinner] = useState(null);
   const { socket, roomName, connected } = useContext(RoomContext);
@@ -25,9 +26,12 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
       newState && setBoard(newState);
     }
 
-    function onPlayerChange(players) {
+    function onPlayerChange(newPlayers) {
       console.log("the game's players changed!");
-      players && setPlayers(players);
+      if (newPlayers) {
+        setPlayers(newPlayers);
+        setSinglePlayer(Object.keys(newPlayers).length === 1);
+      }
     }
 
     function onTurnChange(newCurrentPlayer) {
@@ -150,6 +154,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
         getInitialBoard={getInitialBoard}
         makeMove={makeMove}
         isMyTurn={isMyTurn}
+        singlePlayer={singlePlayer}
         getMyPlayerColor={getMyPlayerColor}
         isMyPlayerColor={isMyPlayerColor}
         onPlayerWin={onPlayerWin}
