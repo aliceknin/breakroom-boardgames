@@ -25,7 +25,7 @@ const Home = () => {
         <header>
           <h1>Breakroom Boardgames</h1>
           <h3>play some games or something</h3>
-          <form className="room-form" onSubmit={handleSubmit}>
+          <form className="room-form input-group" onSubmit={handleSubmit}>
             <input
               type="text"
               required

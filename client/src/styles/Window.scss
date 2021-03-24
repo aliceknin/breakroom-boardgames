@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .window {
   min-width: var(--window-min-width);
   z-index: 5;
@@ -99,8 +101,7 @@
       margin: 0;
       padding: 0.5em 1em;
 
-      &:hover,
-      &:focus {
+      @include hover("&") {
         background-color: hsl(0, 0%, 80%);
         outline: none;
       }

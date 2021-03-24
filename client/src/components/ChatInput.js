@@ -5,7 +5,7 @@ const ChatInput = (props) => {
   const { connected } = useContext(RoomContext);
 
   return (
-    <form className="chat-form" onSubmit={props.onSubmit}>
+    <form className="chat-form input-group" onSubmit={props.onSubmit}>
       <input
         type="text"
         aria-label="Room chat"

@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .chat {
   background-color: hsl(205, 70%, 95%);
   overflow: hidden;
@@ -19,8 +21,7 @@
   border-radius: 7px;
   background-color: hsl(205, 80%, 85%);
 
-  &:hover:not(:disabled),
-  &:focus {
+  @include hover("&") {
     cursor: pointer;
     background-color: hsl(20, 80%, 50%);
     color: white;
@@ -89,65 +90,6 @@
 }
 
 .chat-form {
-  display: flex;
-  flex-wrap: nowrap;
   width: 100%;
   background-color: white;
-
-  input,
-  button {
-    border: none;
-    padding: 1em;
-    margin: 0;
-    &:hover:not(:disabled),
-    &:focus {
-      outline: none;
-    }
-  }
-
-  input {
-    background-color: hsl(20, 50%, 95%);
-    flex-grow: 2;
-    margin-right: 0;
-    min-width: 70%;
-
-    &::placeholder {
-      color: hsl(20, 15%, 60%);
-    }
-
-    &:hover:not(:disabled),
-    &:focus {
-      background-color: white;
-      outline: none;
-
-      &::placeholder {
-        color: hsl(0, 0%, 55%);
-      }
-    }
-
-    &:disabled {
-      background-color: hsl(0, 0%, 95%);
-
-      &::placeholder {
-        color: hsl(0, 0%, 75%);
-      }
-    }
-  }
-
-  button {
-    margin-left: 0;
-    background-color: hsl(20, 80%, 50%);
-    color: white;
-
-    &:hover:not(:disabled),
-    &:focus {
-      cursor: pointer;
-      background-color: hsl(205, 80%, 70%);
-      outline: none;
-    }
-
-    &:disabled {
-      background-color: hsl(20, 20%, 80%);
-    }
-  }
 }

@@ -1,3 +1,5 @@
+@use "mixins" as *;
+
 .home {
   input,
   button {
@@ -7,7 +9,7 @@
     border: none;
     transition: all 0.2s ease;
 
-    &:hover {
+    @include hover("&") {
       box-shadow: 5px 5px 5px hsla(0, 0%, 0%, 15%);
     }
   }
@@ -16,7 +18,7 @@
     background: hsl(205, 80%, 45%);
     background: linear-gradient(
       hsl(205, 80%, 35%),
-      hsl(205, 80%, 45%) 10%,
+      hsl(205, 80%, 45%) 30%,
       hsl(205, 90%, 15%)
     );
     min-height: 100vh;
@@ -32,45 +34,20 @@
   }
 
   .room-form {
-    display: flex;
-    flex-wrap: nowrap;
-    max-width: Min(90vw, 500px);
+    max-width: min(90vw, 500px);
 
     input,
     button {
       font-size: 22px;
-
-      &:hover,
-      &:focus {
-        background-color: white;
-      }
+      padding: 0.75em;
     }
 
     input {
-      background-color: hsl(20, 50%, 90%);
       border-radius: 7px 0 0 7px;
-      flex-grow: 2;
-      margin-right: 0;
-      min-width: 70%;
-
-      &::placeholder {
-        color: hsl(20, 15%, 55%);
-      }
-
-      &:hover,
-      &:focus {
-        background-color: white;
-
-        &::placeholder {
-          color: hsl(0, 0%, 55%);
-        }
-      }
     }
 
     button {
-      background-color: hsl(20, 80%, 50%);
       border-radius: 0 7px 7px 0;
-      margin-left: 0;
     }
   }
 }
