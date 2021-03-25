@@ -1,7 +1,14 @@
+@use "mixins" as *;
+
 .room {
   display: flex;
   flex-direction: column;
   flex-grow: 2;
+  background-color: hsl(205, 35%, 60%);
+
+  section {
+    padding: 0 10%;
+  }
 
   .game-manager {
     flex-grow: 2;
@@ -16,5 +23,127 @@
     box-shadow: 0 5px 10px hsla(0, 0%, 0%, 25%);
     padding: 0.5em 1em;
     margin: 1em 0;
+  }
+
+  header {
+    z-index: 3;
+    position: sticky;
+    top: 0;
+    background: hsl(205, 60%, 40%);
+    background: linear-gradient(
+      90deg,
+      hsl(205, 60%, 40%),
+      hsl(205, 70%, 43%),
+      hsl(205, 60%, 40%)
+    );
+    color: hsl(205, 90%, 95%);
+    margin-bottom: 1em;
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 3px 3px 5px hsla(205, 50%, 10%, 15%);
+
+    * {
+      white-space: nowrap;
+      overflow: hidden;
+
+      &:not(:first-child) {
+        text-overflow: ellipsis;
+      }
+    }
+
+    & > *:first-child {
+      width: 33.333%;
+      min-width: fit-content;
+    }
+
+    button.menu {
+      color: inherit;
+      display: none;
+      background: transparent;
+      border: solid 3px;
+      border-radius: 50%;
+      padding: 0.33em 0.65em 0.15em;
+      margin-right: 1em;
+    }
+
+    .dropdown-content {
+      display: flex;
+      flex-grow: 1;
+      padding: 1em 1em 1em 0;
+      width: 66.666%;
+      & > * {
+        flex-grow: 1;
+      }
+
+      & > *:first-child {
+        text-align: center;
+      }
+
+      & > *:last-child {
+        text-align: right;
+      }
+    }
+
+    a {
+      color: inherit;
+      display: inline-block;
+      padding: 1em 0.5em 1em 1em;
+      transition: all 0.2s ease;
+      @media (hover: hover) {
+        text-decoration: none;
+      }
+
+      @include hover("&") {
+        color: hsl(20, 80%, 50%);
+      }
+    }
+
+    .room-name span {
+      color: white;
+      font-weight: bold;
+    }
+  }
+
+  @include mobile {
+    header {
+      button.menu {
+        display: inline-block;
+
+        @include hover("&") {
+          color: hsl(20, 80%, 50%);
+          outline: none;
+
+          & + .dropdown-content {
+            max-height: 79.2px;
+          }
+        }
+      }
+
+      .dropdown-content {
+        flex-direction: column-reverse;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        max-height: 0;
+        width: 100%;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        padding: 0;
+        background: inherit;
+        box-shadow: inset 2px 2px 2px hsla(0, 0%, 0%, 15%);
+
+        & > * {
+          padding-bottom: 0.75em;
+        }
+
+        & > *:last-child {
+          text-align: center;
+          padding-top: 0.75em;
+        }
+      }
+    }
   }
 }

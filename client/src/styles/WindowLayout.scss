@@ -4,7 +4,6 @@
   --dock-bottom-height: 240px;
   --full-vh: 100vh;
   --full-vw: 100vw;
-  --vw: calc(var(--full-vw) / 100);
   --full-vmin: min(var(--full-vh), var(--full-vw));
   --vmin: calc(var(--full-vmin) / 100);
   --window-min-width: min(var(--overlay-width), var(--dock-side-width));
@@ -19,8 +18,6 @@
 
   .content-container {
     position: relative;
-    padding: 0 calc(var(--vw, 1vw) * 10);
-    background-color: hsl(205, 30%, 60%);
     flex-grow: 2;
     overflow: auto;
     display: flex;
