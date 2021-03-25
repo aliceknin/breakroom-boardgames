@@ -16,17 +16,42 @@ const Window = ({ children, title, viewMode, setViewMode, open, setOpen }) => {
           <span className="buttons-container">
             <button
               className={open ? "open" : "closed"}
+              aria-label={open ? "Minimize" : "Maximize"}
               onClick={() => setOpen((o) => !o)}
             >
-              {open ? "_" : "^"}
+              <i
+                className={
+                  open ? "far fa-window-minimize" : "fas fa-chevron-up"
+                }
+              />
             </button>
             <span className="mode-buttons" onClick={handleClick}>
-              {viewMode !== "overlay" && <button className="overlay">O</button>}
+              {viewMode !== "overlay" && (
+                <button
+                  className="overlay"
+                  aria-label="Overlay"
+                  data-label-popup
+                >
+                  <i className="far fa-window-restore"></i>
+                </button>
+              )}
               {viewMode !== "dock-side" && (
-                <button className="dock-side">_|</button>
+                <button
+                  className="dock-side"
+                  aria-label="Dock side"
+                  data-label-popup
+                >
+                  <i class="far fa-window-maximize"></i>
+                </button>
               )}
               {viewMode !== "dock-bottom" && (
-                <button className="dock-bottom">|_|</button>
+                <button
+                  className="dock-bottom"
+                  aria-label="Dock Bottom"
+                  data-label-popup
+                >
+                  <i class="far fa-window-maximize"></i>
+                </button>
               )}
             </span>
           </span>

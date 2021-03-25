@@ -15,6 +15,7 @@
   }
 
   .disconnected {
+    z-index: 4;
     position: absolute;
     right: 50%;
     transform: translate(50%);
@@ -118,6 +119,7 @@
 
           & + .dropdown-content {
             max-height: 79.2px;
+            opacity: 1;
           }
         }
       }
@@ -129,6 +131,7 @@
         right: 0;
         max-height: 0;
         width: 100%;
+        opacity: 0;
         overflow: hidden;
         transition: all 0.2s ease;
         padding: 0;

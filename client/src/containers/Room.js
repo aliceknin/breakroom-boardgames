@@ -94,10 +94,6 @@ const Room = () => {
           mainContent={
             <div className="room">
               {!connected && <div className="disconnected">Disconnected</div>}
-              {/* <h1>
-                Welcome to room {roomName}
-                {socket?.userName && ", " + socket.userName}!
-              </h1> */}
               <header>
                 <div className="home-link-wrapper">
                   <a className="home-link" href="/">
@@ -105,7 +101,7 @@ const Room = () => {
                   </a>
                 </div>
                 <button className="menu">
-                  <i class="fas fa-info"></i>
+                  <i className="fas fa-info"></i>
                 </button>
                 <div className="dropdown-content">
                   <div className="room-name">

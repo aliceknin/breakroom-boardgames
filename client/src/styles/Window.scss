@@ -31,10 +31,12 @@
     &.closed {
       min-width: 0;
 
+      .bar {
+        border-radius: 7px 0 0 0;
+      }
+
       .window-container {
         height: fit-content;
-        border-radius: 7px 0 0 0;
-        overflow: hidden;
       }
     }
   }
@@ -70,10 +72,12 @@
     .window-container {
       width: 300px;
       right: 20px;
-      border-radius: 7px 7px 0 0;
-      overflow: hidden;
       box-shadow: 0px 5px 25px hsla(0, 0%, 0%, 50%),
         0px 5px 5px hsla(0, 0%, 0%, 5%);
+    }
+
+    .bar {
+      border-radius: 7px 7px 0 0;
     }
 
     .content-open {
@@ -87,25 +91,57 @@
     justify-content: space-between;
     background-color: hsl(0, 0%, 95%);
     box-shadow: inset 0px -5px 5px hsla(0, 0%, 0%, 5%);
+    color: hsl(205, 50%, 40%);
 
     .title {
       font-size: 14px;
       font-weight: bold;
-      color: hsl(205, 30%, 60%);
       padding: 0.5em 1em;
     }
 
     button {
+      position: relative;
       font-size: 15px;
       background-color: transparent;
       border: none;
       margin: 0;
       padding: 0.5em 1em;
+      color: inherit;
 
       @include hover("&") {
         background-color: hsl(0, 0%, 80%);
         outline: none;
+
+        &[data-label-popup]::after {
+          content: attr(aria-label);
+          animation: appear 0.2s ease 0.75s forwards;
+          opacity: 0;
+          position: absolute;
+          top: 100%;
+          right: 0;
+          margin: 0.5em;
+          background-color: white;
+          border-radius: 0.5em;
+          overflow: hidden;
+          padding: 0.5em;
+          z-index: 3;
+        }
       }
+
+      &.dock-side i {
+        transform: rotate(90deg);
+      }
+
+      &.dock-bottom i {
+        transform: rotate(180deg);
+      }
+    }
+  }
+
+  @include hover("&.closed .bar button[aria-label]") {
+    &::after {
+      top: unset;
+      bottom: 100%;
     }
   }
 
@@ -117,5 +153,14 @@
   .content-closed {
     max-height: 0;
     overflow: hidden;
+  }
+}
+
+@keyframes appear {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }
