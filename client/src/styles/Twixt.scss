@@ -16,6 +16,11 @@
   align-items: center;
   margin-bottom: 2em;
 
+  h1 {
+    margin: 0;
+    font-size: 2em;
+  }
+
   .twixt-container {
     flex-grow: 2;
   }
@@ -23,7 +28,7 @@
 
 @media (orientation: landscape) {
   .game-manager {
-    --board-vmin: 65;
+    --board-vmin: 60;
   }
 }
 
@@ -91,13 +96,13 @@
       box-shadow: inset 0px 2px 2px hsla(0, 0%, 0%, 50%);
     }
     &.red .twixt-peg {
-      z-index: 2;
+      z-index: 1;
       background-color: red;
       box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 30%),
         inset 0px -1px 0px hsla(20, 80%, 95%, 50%);
     }
     &.black .twixt-peg {
-      z-index: 2;
+      z-index: 1;
       background-color: black;
       box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 50%),
         inset 0px -1px 0px hsla(0, 0%, 95%, 30%);
@@ -176,7 +181,6 @@
   top: 50%;
   left: 50%;
   background-color: hsl(0, 85%, 50%);
-  z-index: 1;
   color: transparent;
   box-shadow: 2px 2px 2px hsla(0, 0%, 0%, 30%);
   &.four-oclock {
@@ -238,6 +242,33 @@
   }
 }
 
+.rules-btn {
+  margin: 0.25em 0.5em 1em 0.5em;
+}
+
+.turn-info button,
+.rules-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: bold;
+  background-color: transparent;
+  box-shadow: none;
+  color: hsl(205, 30%, 20%);
+  text-decoration: underline;
+  padding: 0;
+  border: none;
+
+  @include hover("&") {
+    color: white;
+    outline: none;
+  }
+
+  &:disabled {
+    color: hsl(0, 0%, 30%);
+    text-decoration: none;
+  }
+}
+
 .turn-info {
   width: fit-content;
   min-width: var(--board-size);
@@ -250,28 +281,6 @@
 
     :nth-child(2) {
       margin: 0 1rem;
-    }
-
-    button {
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      font-weight: bold;
-      background-color: transparent;
-      box-shadow: none;
-      color: hsl(205, 30%, 20%);
-      text-decoration: underline;
-      padding: 0;
-      border: none;
-
-      @include hover("&") {
-        color: white;
-        outline: none;
-      }
-
-      &:disabled {
-        color: hsl(0, 0%, 30%);
-        text-decoration: none;
-      }
     }
   }
 

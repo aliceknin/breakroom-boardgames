@@ -2,9 +2,10 @@
 
 .window {
   min-width: var(--window-min-width);
-  z-index: 5;
+  z-index: 2;
 
   .window-container {
+    min-width: var(--window-min-width);
     will-change: transform;
     transform: translateZ(0);
     position: fixed;

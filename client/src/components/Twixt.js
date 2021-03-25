@@ -13,6 +13,19 @@ function getInitialBoard() {
   return b;
 }
 
-const Twixt = withGameManager(TwixtBoard, ["red", "black"], getInitialBoard);
+const TwixtRules = (
+  <div>
+    <h2>Twixt Rules</h2>
+    <p>One day, I will actually add rules to this.</p>
+  </div>
+);
+
+const Twixt = withGameManager(
+  TwixtBoard,
+  "Twixt",
+  ["red", "black"],
+  TwixtRules,
+  getInitialBoard
+);
 
 export default Twixt;

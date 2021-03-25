@@ -1,8 +1,15 @@
 import React, { useContext, useEffect, useState } from "react";
 import RoomContext from "../contexts/RoomContext";
+import RulesModal from "./RulesModal";
 import TurnInfo from "./TurnInfo";
 
-const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
+const withGameManager = (
+  GameComponent,
+  displayName,
+  roles,
+  rules,
+  getInitialBoard
+) => () => {
   const [board, setBoard] = useState(getInitialBoard());
   const [turnMode, setTurnMode] = useState(true);
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
@@ -11,6 +18,7 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
   const [singlePlayer, setSinglePlayer] = useState(false);
   const [myRole, setMyRole] = useState(0);
   const [winner, setWinner] = useState(null);
+  const [openRulesModal, setOpenRulesModal] = useState(false);
   const [remountKey, setRemountKey] = useState(Math.random());
   const { socket, roomName, connected } = useContext(RoomContext);
 
@@ -151,6 +159,10 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
 
   return (
     <div className="game-manager">
+      <h1>{displayName}</h1>
+      <button className="rules-btn" onClick={() => setOpenRulesModal(true)}>
+        How to play
+      </button>
       <TurnInfo
         turnMode={turnMode}
         toggleTurnMode={toggleTurnMode}
@@ -175,6 +187,11 @@ const withGameManager = (GameComponent, roles, getInitialBoard) => () => {
         endTurn={endTurn}
         actionsThisTurn={actionsThisTurn}
         setActionsThisTurn={setActionsThisTurn}
+      />
+      <RulesModal
+        isOpen={openRulesModal}
+        onHide={() => setOpenRulesModal(false)}
+        content={rules}
       />
     </div>
   );
