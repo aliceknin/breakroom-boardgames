@@ -90,36 +90,36 @@ const Room = () => {
       errorMessage="Something went wrong connecting to the server. Try restarting it?"
     >
       <RoomContext.Provider value={{ socket, roomName, connected }}>
-        <WindowLayout
-          mainContent={
-            <div className="room">
-              {!connected && <div className="disconnected">Disconnected</div>}
-              <header>
-                <div className="home-link-wrapper">
-                  <a className="home-link" href="/">
-                    Breakroom Boardgames
-                  </a>
-                </div>
-                <button className="menu">
-                  <i className="fas fa-info"></i>
-                </button>
-                <div className="dropdown-content">
-                  <div className="room-name">
-                    Game Room: <span>{roomName}</span>
-                  </div>
-                  <div className="username">
-                    Hi{socket?.userName && ", " + socket.userName}!
-                  </div>
-                </div>
-              </header>
+        <div className="room">
+          {!connected && <div className="disconnected">Disconnected</div>}
+          <header>
+            <div className="home-link-wrapper">
+              <a className="home-link" href="/">
+                Breakroom Boardgames
+              </a>
+            </div>
+            <button className="menu">
+              <i className="fas fa-info"></i>
+            </button>
+            <div className="dropdown-content">
+              <div className="room-name">
+                Game Room: <span>{roomName}</span>
+              </div>
+              <div className="username">
+                Hi{socket?.userName && ", " + socket.userName}!
+              </div>
+            </div>
+          </header>
+          <WindowLayout
+            mainContent={
               <section>
                 <Twixt />
               </section>
-            </div>
-          }
-          windowContent={<Chat />}
-          windowTitle="Room Chat"
-        />
+            }
+            windowContent={<Chat />}
+            windowTitle="Room Chat"
+          />
+        </div>
       </RoomContext.Provider>
     </LoadingWrapper>
   );

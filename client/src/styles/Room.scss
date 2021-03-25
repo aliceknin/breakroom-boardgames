@@ -1,13 +1,22 @@
 @use "mixins" as *;
 
 .room {
+  --header-padding: 1em;
+  --header-line-height: 1.3em;
+  --header-height: calc(
+    var(--header-line-height) + (2 * var(--header-padding))
+  );
+
   display: flex;
   flex-direction: column;
   flex-grow: 2;
   background-color: hsl(205, 35%, 60%);
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
 
   section {
-    padding: 0 10%;
+    padding: 1em 10% 2em;
   }
 
   .game-manager {
@@ -38,13 +47,13 @@
       hsl(205, 60%, 40%)
     );
     color: hsl(205, 90%, 95%);
-    margin-bottom: 1em;
     width: 100%;
     display: flex;
     flex-wrap: nowrap;
     justify-content: space-between;
     align-items: center;
     box-shadow: 3px 3px 5px hsla(205, 50%, 10%, 15%);
+    line-height: var(--header-line-height);
 
     * {
       white-space: nowrap;
@@ -73,7 +82,8 @@
     .dropdown-content {
       display: flex;
       flex-grow: 1;
-      padding: 1em 1em 1em 0;
+      padding: var(--header-padding);
+      padding-left: 0;
       width: 66.666%;
       & > * {
         flex-grow: 1;
@@ -90,8 +100,9 @@
 
     a {
       color: inherit;
-      display: inline-block;
-      padding: 1em 0.5em 1em 1em;
+      display: block;
+      padding: var(--header-padding);
+      padding-right: 0.5em;
       transition: all 0.2s ease;
       @media (hover: hover) {
         text-decoration: none;

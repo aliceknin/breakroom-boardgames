@@ -2,7 +2,8 @@
   --overlay-width: 360px;
   --dock-side-width: 250px;
   --dock-bottom-height: 240px;
-  --full-vh: 100vh;
+  --layout-height: 100vh;
+  --full-vh: var(--layout-height);
   --full-vw: 100vw;
   --full-vmin: min(var(--full-vh), var(--full-vw));
   --vmin: calc(var(--full-vmin) / 100);
@@ -10,10 +11,10 @@
 
   display: flex;
   flex-wrap: nowrap;
-  height: 100vh;
+  height: var(--layout-height);
   width: 100vw;
   max-width: 100%;
-  max-height: 100%;
+  max-height: var(--layout-height);
   overflow: hidden;
 
   .content-container {
@@ -30,10 +31,6 @@
     &.open {
       --full-vw: calc(100vw - var(--dock-side-width));
     }
-
-    .content-container {
-      box-shadow: inset -5px -5px 5px hsla(0, 0%, 0%, 15%);
-    }
   }
 
   &.dock-bottom {
@@ -41,10 +38,6 @@
 
     &.open {
       --full-vh: calc(100vh - var(--dock-bottom-height));
-    }
-
-    .content-container {
-      box-shadow: inset 0px -5px 5px hsla(0, 0%, 0%, 15%);
     }
   }
 }
