@@ -8,6 +8,7 @@ import Twixt from "../components/Twixt";
 import "../styles/Room.scss";
 import RoomContext from "../contexts/RoomContext";
 import LoadingWrapper from "../components/LoadingWrapper";
+import RoomHeader from "../components/RoomHeader";
 
 const ENDPOINT = "http://localhost:4005";
 
@@ -92,24 +93,7 @@ const Room = () => {
       <RoomContext.Provider value={{ socket, roomName, connected }}>
         <div className="room">
           {!connected && <div className="disconnected">Disconnected</div>}
-          <header>
-            <div className="home-link-wrapper">
-              <a className="home-link" href="/">
-                Breakroom Boardgames
-              </a>
-            </div>
-            <button className="menu">
-              <i className="fas fa-info"></i>
-            </button>
-            <div className="dropdown-content">
-              <div className="room-name">
-                Game Room: <span>{roomName}</span>
-              </div>
-              <div className="username">
-                Hi{socket?.userName && ", " + socket.userName}!
-              </div>
-            </div>
-          </header>
+          <RoomHeader socket={socket} roomName={roomName} />
           <WindowLayout
             mainContent={
               <section>

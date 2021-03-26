@@ -127,11 +127,6 @@
         @include hover("&") {
           color: hsl(20, 80%, 50%);
           outline: none;
-
-          & + .dropdown-content {
-            max-height: 79.2px;
-            opacity: 1;
-          }
         }
       }
 
@@ -156,6 +151,11 @@
         & > *:last-child {
           text-align: center;
           padding-top: 0.75em;
+        }
+
+        &.open {
+          max-height: 79.2px;
+          opacity: 1;
         }
       }
     }

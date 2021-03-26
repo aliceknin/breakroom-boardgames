@@ -41,7 +41,7 @@ const Window = ({ children, title, viewMode, setViewMode, open, setOpen }) => {
                   aria-label="Dock side"
                   data-label-popup
                 >
-                  <i class="far fa-window-maximize"></i>
+                  <i className="far fa-window-maximize"></i>
                 </button>
               )}
               {viewMode !== "dock-bottom" && (
@@ -50,7 +50,7 @@ const Window = ({ children, title, viewMode, setViewMode, open, setOpen }) => {
                   aria-label="Dock Bottom"
                   data-label-popup
                 >
-                  <i class="far fa-window-maximize"></i>
+                  <i className="far fa-window-maximize"></i>
                 </button>
               )}
             </span>
