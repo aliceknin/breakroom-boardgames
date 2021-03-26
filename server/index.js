@@ -88,7 +88,7 @@ function emitInitalGameState(room, includeTurns, socket) {
 }
 
 function initRoles(playerKey, room, roles) {
-  room.turnMode = true;
+  // room.turnMode = true;
   room.openRoles = roles;
   fillRole(playerKey, room);
 }
@@ -241,9 +241,7 @@ io.on("connection", (socket) => {
     console.log("setting turn mode in", roomName, "to", turnMode);
     room.turnMode = turnMode;
 
-    if (turnMode && room.winner) {
-      restartGame(room);
-    }
+    turnMode && restartGame(room);
 
     socket.to(roomName).emit("broadcast turn mode", turnMode);
   });

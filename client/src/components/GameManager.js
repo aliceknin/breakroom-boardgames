@@ -11,7 +11,7 @@ const withGameManager = (
   getInitialBoard
 ) => () => {
   const [board, setBoard] = useState(getInitialBoard());
-  const [turnMode, setTurnMode] = useState(true);
+  const [turnMode, setTurnMode] = useState(false);
   const [actionsThisTurn, setActionsThisTurn] = useState([]);
   const [currentPlayer, setCurrentPlayer] = useState(null);
   const [players, setPlayers] = useState({});
@@ -167,6 +167,7 @@ const withGameManager = (
         turnMode={turnMode}
         toggleTurnMode={toggleTurnMode}
         currentPlayer={currentPlayer}
+        singlePlayer={singlePlayer}
         switchPlayer={switchPlayer}
         getMyPlayerColor={getMyPlayerColor}
         winner={winner}
@@ -177,7 +178,6 @@ const withGameManager = (
         getInitialBoard={getInitialBoard}
         makeMove={makeMove}
         isMyTurn={isMyTurn}
-        singlePlayer={singlePlayer}
         getMyPlayerColor={getMyPlayerColor}
         isMyPlayerColor={isMyPlayerColor}
         onPlayerWin={onPlayerWin}

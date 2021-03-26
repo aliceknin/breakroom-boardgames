@@ -18,7 +18,6 @@ const TwixtBoard = ({
   getInitialBoard,
   makeMove,
   isMyTurn,
-  singlePlayer,
   getMyPlayerColor,
   onPlayerWin,
   winner,
@@ -280,19 +279,9 @@ const TwixtBoard = ({
           Undo
         </button>
         {turnMode && (
-          <>
-            <div className="info-popup-group" tabIndex="0">
-              <button onClick={endMyTurn} disabled={singlePlayer || disabled}>
-                End Turn
-              </button>
-              {singlePlayer && getMyPlayerColor() !== "spectator" && (
-                <p className="info-popup">
-                  You're the only one here at the moment, so it's always your
-                  turn!
-                </p>
-              )}
-            </div>
-          </>
+          <button onClick={endMyTurn} disabled={disabled}>
+            End Turn
+          </button>
         )}
       </div>
     </div>

@@ -72,26 +72,29 @@ button {
   display: inline-block;
   position: relative;
   width: fit-content;
-  .info-popup {
-    display: none;
-    margin: 0;
-    position: absolute;
-    bottom: 100%;
-    min-width: 250px;
-    max-width: 300px;
-    padding: 1em;
-    background-color: hsl(205, 70%, 95%);
-    border-radius: 10px;
-    box-shadow: 0px 0px 7px 5px hsla(0, 0%, 0%, 15%);
 
-    @supports (backdrop-filter: blur(3px)) {
-      background-color: hsla(205, 70%, 95%, 85%);
-      backdrop-filter: blur(3px);
-    }
-  }
   @include hover("&") {
     .info-popup {
       display: block;
     }
+  }
+}
+
+.info-popup {
+  z-index: 5;
+  display: none;
+  margin: 0;
+  position: absolute;
+  bottom: 100%;
+  min-width: 250px;
+  max-width: 300px;
+  padding: 1em;
+  background-color: hsl(205, 70%, 95%);
+  border-radius: 10px;
+  box-shadow: 0px 0px 7px 5px hsla(0, 0%, 0%, 15%);
+
+  @supports (backdrop-filter: blur(3px)) {
+    background-color: hsla(205, 70%, 95%, 85%);
+    backdrop-filter: blur(3px);
   }
 }
