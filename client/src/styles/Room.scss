@@ -1,11 +1,9 @@
 @use "mixins" as *;
 
 .room {
-  --header-padding: 1em;
-  --header-line-height: 1.3em;
-  --header-height: calc(
-    var(--header-line-height) + (2 * var(--header-padding))
-  );
+  $header-padding: 1em;
+  $header-line-height: 1.3em;
+  $header-height: $header-line-height + (2 * $header-padding);
 
   display: flex;
   flex-direction: column;
@@ -53,7 +51,7 @@
     justify-content: space-between;
     align-items: center;
     box-shadow: 3px 3px 5px hsla(205, 50%, 10%, 15%);
-    line-height: var(--header-line-height);
+    line-height: $header-line-height;
 
     * {
       white-space: nowrap;
@@ -82,7 +80,7 @@
     .dropdown-content {
       display: flex;
       flex-grow: 1;
-      padding: var(--header-padding);
+      padding: $header-padding;
       padding-left: 0;
       width: 66.666%;
       & > * {
@@ -101,7 +99,7 @@
     a {
       color: inherit;
       display: block;
-      padding: var(--header-padding);
+      padding: $header-padding;
       padding-right: 0.5em;
       transition: all 0.2s ease;
       @media (hover: hover) {
@@ -131,6 +129,9 @@
       }
 
       .dropdown-content {
+        $header-padding: 0.75em;
+        $dropdown-height: (2 * $header-line-height) + (3 * $header-padding);
+
         flex-direction: column-reverse;
         position: absolute;
         top: 100%;
@@ -145,16 +146,16 @@
         box-shadow: inset 2px 2px 2px hsla(0, 0%, 0%, 15%);
 
         & > * {
-          padding-bottom: 0.75em;
+          padding-bottom: $header-padding;
         }
 
         & > *:last-child {
           text-align: center;
-          padding-top: 0.75em;
+          padding-top: $header-padding;
         }
 
         &.open {
-          max-height: 79.2px;
+          max-height: $dropdown-height;
           opacity: 1;
         }
       }
