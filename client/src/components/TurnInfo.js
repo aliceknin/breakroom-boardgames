@@ -8,6 +8,7 @@ const TurnInfo = ({
   singlePlayer,
   switchPlayer,
   getMyPlayerColor,
+  roleDisplayName,
   winner,
 }) => {
   const { connected } = useContext(RoomContext);
@@ -15,7 +16,9 @@ const TurnInfo = ({
   function myRole() {
     let role = getMyPlayerColor();
 
-    return role === "spectator" ? `You're a ${role}` : `You're playing ${role}`;
+    return role === "spectator"
+      ? `You're a ${role}.`
+      : `You're playing ${role}.`;
   }
 
   function whoseTurnIsIt() {
@@ -41,22 +44,35 @@ const TurnInfo = ({
             onClick={toggleTurnMode}
             disabled={!connected || (!turnMode && singlePlayer)}
           >
-            {turnMode ? "Stop Turns" : "Manage Turns"}
+            {turnMode ? "Stop Game" : "Start Game"}
           </button>
           {!turnMode && singlePlayer && (
-            <p className="info-popup">
+            <p className="info-popup" tabIndex="0">
               You're the only one here at the moment. Play around with the board
-              for now, and when someone else arrives, you can start a game with
-              managed turns.
+              for now, and when someone else arrives, you can start a game!
             </p>
           )}
         </div>
         {!turnMode && (
-          <button onClick={switchPlayer} disabled={!connected}>
-            Switch Player
+          <button
+            className="switch-player"
+            onClick={switchPlayer}
+            disabled={!connected}
+          >
+            {roleDisplayName === "color" && (
+              <span
+                className={"player-color-indicator " + getMyPlayerColor()}
+              ></span>
+            )}
+            <span>
+              Switch <br />
+              {roleDisplayName}
+            </span>
           </button>
         )}
-        <h3>{myRole()}.</h3>
+        <h3>
+          {roleDisplayName === "color" && !turnMode ? "Free Play!" : myRole()}
+        </h3>
       </div>
     </div>
   );

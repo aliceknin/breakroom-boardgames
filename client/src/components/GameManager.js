@@ -5,10 +5,11 @@ import TurnInfo from "./TurnInfo";
 
 const withGameManager = (
   GameComponent,
-  displayName,
+  gameDisplayName,
   roles,
   rules,
-  getInitialBoard
+  getInitialBoard,
+  roleDisplayName = "player"
 ) => () => {
   const [board, setBoard] = useState(getInitialBoard());
   const [turnMode, setTurnMode] = useState(false);
@@ -159,7 +160,7 @@ const withGameManager = (
 
   return (
     <div className="game-manager">
-      <h1>{displayName}</h1>
+      <h1>{gameDisplayName}</h1>
       <button className="rules-btn" onClick={() => setOpenRulesModal(true)}>
         How to play
       </button>
@@ -170,6 +171,7 @@ const withGameManager = (
         singlePlayer={singlePlayer}
         switchPlayer={switchPlayer}
         getMyPlayerColor={getMyPlayerColor}
+        roleDisplayName={roleDisplayName}
         winner={winner}
       />
       <GameComponent

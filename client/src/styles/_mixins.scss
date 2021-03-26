@@ -69,3 +69,19 @@ $small-mobile-width: 375px;
     @content;
   }
 }
+
+@mixin appear($selector: "&", $duration: 0.2s, $delay: 0.75s) {
+  #{$selector} {
+    opacity: 0;
+    animation: appear $duration ease $delay forwards;
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}

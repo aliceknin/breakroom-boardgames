@@ -241,10 +241,6 @@
   }
 }
 
-.rules-btn {
-  margin: 0.25em 0.5em 1em 0.5em;
-}
-
 .turn-info button,
 .rules-btn {
   text-transform: uppercase;
@@ -260,11 +256,40 @@
   @include hover("&") {
     color: white;
     outline: none;
+    cursor: pointer;
   }
 
   &:disabled {
-    color: hsl(0, 0%, 30%);
+    color: hsl(0, 0%, 40%);
     text-decoration: none;
+    pointer-events: none;
+  }
+}
+
+.rules-btn {
+  margin: 0.25em 0.5em 1em 0.5em;
+}
+
+.switch-player {
+  display: flex;
+  align-items: center;
+}
+
+.player-color-indicator {
+  padding: 0.75rem;
+  font-size: 0;
+  border-radius: 50%;
+  margin: 0 0.5rem 0 1em;
+
+  &.red {
+    background-color: red;
+    box-shadow: 0px 3px 3px hsla(0, 0%, 0%, 30%),
+      inset 0px 2px 0px hsla(20, 80%, 95%, 50%);
+  }
+  &.black {
+    background-color: black;
+    box-shadow: 0px 3px 3px hsla(0, 0%, 0%, 50%),
+      inset 0px 2px 0px hsla(0, 0%, 95%, 30%);
   }
 }
 
@@ -275,10 +300,10 @@
   .player-info {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     margin-bottom: 0.5em;
 
-    :nth-child(2) {
+    & > *:nth-child(2) {
       margin: 0 1rem;
     }
   }
@@ -289,7 +314,7 @@
   }
 
   .info-popup {
-    bottom: -150%;
+    bottom: -250%;
     left: 50%;
   }
 }

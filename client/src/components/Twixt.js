@@ -25,7 +25,8 @@ const Twixt = withGameManager(
   "Twixt",
   ["red", "black"],
   TwixtRules,
-  getInitialBoard
+  getInitialBoard,
+  "color"
 );
 
 export default Twixt;
