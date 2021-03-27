@@ -11,6 +11,9 @@ const RulesModal = ({ isOpen, onHide, content }) => {
       className="modal"
       closeTimeoutMS={200}
     >
+      <button className="close" onClick={onHide}>
+        <i className="close"></i>
+      </button>
       {content}
     </ReactModal>
   );

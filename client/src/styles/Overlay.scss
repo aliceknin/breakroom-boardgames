@@ -14,14 +14,7 @@
   padding: 0 2em 2em 2em;
   box-sizing: border-box;
 
-  .close {
-    position: absolute;
-    top: 0;
-    right: 0;
-    color: hsl(0, 0%, 50%);
-    background-color: transparent;
-    box-shadow: none;
-    font-size: 22px;
-    padding: 0.5em;
+  button.close {
+    margin: 1em;
   }
 }

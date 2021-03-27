@@ -3,7 +3,7 @@
 .room {
   $header-padding: 1em;
   $header-line-height: 1.3em;
-  $header-height: $header-line-height + (2 * $header-padding);
+  --header-height: calc(#{$header-line-height} + (2 * #{$header-padding}));
 
   display: flex;
   flex-direction: column;

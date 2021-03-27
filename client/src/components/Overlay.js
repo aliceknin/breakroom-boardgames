@@ -13,7 +13,7 @@ const Overlay = ({ children, className }) => {
     !closed && (
       <div className={"game-overlay " + className}>
         <button className="close" onClick={handleClick}>
-          X
+          <i className="close"></i>
         </button>
         {children}
       </div>
