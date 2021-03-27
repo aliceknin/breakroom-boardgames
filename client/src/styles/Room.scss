@@ -53,7 +53,7 @@
     box-shadow: 3px 3px 5px hsla(205, 50%, 10%, 15%);
     line-height: $header-line-height;
 
-    * {
+    & > * {
       white-space: nowrap;
       overflow: hidden;
 
@@ -68,13 +68,24 @@
     }
 
     button.menu {
+      $menu-border-width: 3px;
+      $menu-button-size: calc(
+        2 * (#{$header-line-height} - #{$menu-border-width})
+      );
+
       color: inherit;
       display: none;
       background: transparent;
-      border: solid 3px;
+      border: solid $menu-border-width;
       border-radius: 50%;
-      padding: 0.33em 0.65em 0.15em;
-      margin-right: 1em;
+      margin-right: $header-padding;
+      width: $menu-button-size;
+      height: $menu-button-size;
+
+      i {
+        transform: translateY($header-line-height / 10);
+        font-size: 1.1em;
+      }
     }
 
     .dropdown-content {
@@ -111,9 +122,47 @@
       }
     }
 
-    .room-name span {
-      color: white;
-      font-weight: bold;
+    .room-name {
+      span:first-child {
+        color: white;
+        font-weight: bold;
+      }
+    }
+
+    .copied {
+      z-index: 6;
+      position: absolute;
+      left: 1em;
+      top: 1em;
+      padding: 0.25em 0.25em 0.25em 1em;
+      margin: 1em;
+      color: hsl(0, 0%, 20%);
+      background-color: hsla(47, 100%, 85%, 95%);
+      button.close {
+        position: static;
+        display: inline-flex;
+      }
+    }
+
+    .copy-url {
+      margin-left: 0.5em;
+      background-color: transparent;
+      border: none;
+      padding: 0;
+      color: inherit;
+
+      @include hover("[data-label-popup]") {
+        color: hsl(20, 80%, 50%);
+
+        &::after {
+          top: 70%;
+          right: 20%;
+          animation-delay: 0.2s;
+          color: hsl(205, 60%, 40%);
+          font-family: sans-serif;
+          font-weight: normal;
+        }
+      }
     }
   }
 
@@ -125,6 +174,14 @@
         @include hover("&") {
           color: hsl(20, 80%, 50%);
           outline: none;
+        }
+      }
+
+      .copy-url {
+        @include hover("[data-label-popup]") {
+          &::after {
+            top: 0.5em;
+          }
         }
       }
 
