@@ -87,7 +87,7 @@ button {
 }
 
 .info-popup {
-  z-index: 5;
+  z-index: 6;
   display: none;
   margin: 0;
   position: absolute;
@@ -116,7 +116,7 @@ button {
     border-radius: 0.5em;
     overflow: hidden;
     padding: 0.5em;
-    z-index: 3;
+    z-index: 6;
     @include appear;
   }
 }
