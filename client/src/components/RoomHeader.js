@@ -3,11 +3,20 @@ import React, { useState } from "react";
 const RoomHeader = ({ socket, roomName }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedTimeout, setCopiedTimeout] = useState(null);
 
   function copyURL() {
     console.log("trying to copy " + window.location);
     navigator.clipboard.writeText(window.location);
     setCopied(true);
+    let timeoutID = setTimeout(() => setCopied(false), 2000);
+    setCopiedTimeout(timeoutID);
+  }
+
+  function closeCopyAlert() {
+    clearTimeout(copiedTimeout);
+    setCopied(false);
+    setCopiedTimeout(null);
   }
 
   return (
@@ -20,7 +29,7 @@ const RoomHeader = ({ socket, roomName }) => {
       {copied && (
         <div className="alert copied">
           Copied!{" "}
-          <button className="close" onClick={() => setCopied(false)}>
+          <button className="close" onClick={closeCopyAlert}>
             <i className="close"></i>
           </button>
         </div>
@@ -30,18 +39,15 @@ const RoomHeader = ({ socket, roomName }) => {
       </button>
       <div className={"dropdown-content" + (dropdownOpen ? " open" : "")}>
         <div className="room-name">
-          Game Room: <span>{roomName}</span>
-          <button onClick={copyURL} className="copy-url">
-            {/* <i
-              className="far fa-clipboard"
-              aria-label="Copy the room link to share with your friends!"
-              data-label-popup
-            ></i> */}
-            <i
-              className="fas fa-link"
-              aria-label="Copy the room link to share with your friends!"
-              data-label-popup
-            ></i>
+          <button
+            onClick={copyURL}
+            className="copy-url"
+            aria-label="Copy the room link to invite your friends!"
+            data-label-popup
+          >
+            Game Room: <span>{roomName}</span>
+            {/* <i className="far fa-clipboard"></i> */}
+            <i className="fas fa-link"></i>
           </button>
         </div>
         <div className="username">

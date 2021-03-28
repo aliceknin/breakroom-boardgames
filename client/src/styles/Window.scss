@@ -116,7 +116,6 @@
 
       @include hover("&") {
         background-color: hsl(0, 0%, 80%);
-        outline: none;
       }
 
       &.dock-side i {
@@ -129,7 +128,7 @@
     }
   }
 
-  @include hover("&.closed .bar button[data-label-popup]") {
+  @include hover("&.closed .bar button[data-label-popup]", $focusTap: true) {
     &::after {
       top: unset;
       bottom: 100%;

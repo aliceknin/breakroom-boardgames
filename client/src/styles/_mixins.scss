@@ -7,24 +7,37 @@ $small-mobile-width: 375px;
   $selector: "&",
   $focus: true,
   $focusDesktop: true,
-  $focusMobile: true
+  $focusMobile: true,
+  $focusTap: false
 ) {
   @media (hover: hover) {
     #{$selector}:hover:not(:disabled) {
       @content;
     }
     @if $focusDesktop and $focus {
-      #{$selector}:focus {
+      @include focus($selector) {
         @content;
       }
     }
   }
-  @if $focusMobile and $focus {
-    @media (hover: none) {
-      #{$selector}:focus {
+  @media (hover: none) {
+    $focus-visible-only: not $focusTap;
+    @if $focusMobile and $focus {
+      @include focus($selector, $focus-visible-only) {
         @content;
       }
     }
+  }
+}
+
+@mixin focus($selector: "&", $focus-visible-only: true) {
+  @if $focus-visible-only {
+    $selector: $selector + ".focus-visible";
+  }
+
+  #{$selector}:focus {
+    outline: none;
+    @content;
   }
 }
 
@@ -84,4 +97,21 @@ $small-mobile-width: 375px;
       opacity: 1;
     }
   }
+}
+
+@mixin verticalCenter() {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+@mixin horizontalCenter() {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+@mixin totalCenter() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }

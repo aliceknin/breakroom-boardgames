@@ -39,7 +39,10 @@ const TurnInfo = ({
     <div className="turn-info">
       <div className="player-info">
         {turnMode && <h3>It's {whoseTurnIsIt()}</h3>}
-        <div className="info-popup-group" tabIndex="0">
+        <div
+          className="info-popup-group"
+          tabIndex={!turnMode && singlePlayer ? "0" : ""}
+        >
           <button
             onClick={toggleTurnMode}
             disabled={!connected || (!turnMode && singlePlayer)}
@@ -47,7 +50,7 @@ const TurnInfo = ({
             {turnMode ? "Stop Game" : "Start Game"}
           </button>
           {!turnMode && singlePlayer && (
-            <p className="info-popup" tabIndex="0">
+            <p className="info-popup">
               You're the only one here at the moment. Play around with the board
               for now, and when someone else arrives, you can start a game!
             </p>

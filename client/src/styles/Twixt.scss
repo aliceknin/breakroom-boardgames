@@ -229,7 +229,6 @@
       box-shadow: inset 0px -2px 1px hsla(0, 0%, 0%, 15%),
         inset 0px 2px 1px hsla(20, 70%, 70%, 80%),
         0 5px 15px hsla(0, 0%, 0%, 15%);
-      outline: none;
     }
     &:disabled {
       color: hsl(0, 0%, 55%);
@@ -256,7 +255,6 @@
 
   @include hover("&") {
     color: white;
-    outline: none;
     cursor: pointer;
   }
 

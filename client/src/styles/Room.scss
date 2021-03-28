@@ -110,6 +110,7 @@
     a {
       color: inherit;
       display: block;
+      width: fit-content;
       padding: $header-padding;
       padding-right: 0.5em;
       transition: all 0.2s ease;
@@ -117,20 +118,19 @@
         text-decoration: none;
       }
 
-      @include hover("&") {
+      @include hover {
         color: hsl(20, 80%, 50%);
       }
     }
 
     .room-name {
       span:first-child {
-        color: white;
         font-weight: bold;
       }
     }
 
     .copied {
-      z-index: 6;
+      z-index: 7;
       position: absolute;
       left: 1em;
       top: 1em;
@@ -138,6 +138,8 @@
       margin: 1em;
       color: hsl(0, 0%, 20%);
       background-color: hsla(47, 100%, 85%, 95%);
+      animation: disappear 0.4s ease 1.6s forwards;
+
       button.close {
         position: static;
         display: inline-flex;
@@ -145,22 +147,26 @@
     }
 
     .copy-url {
-      margin-left: 0.5em;
       background-color: transparent;
       border: none;
       padding: 0;
       color: inherit;
+      font-size: inherit;
+      font-family: inherit;
 
-      @include hover("[data-label-popup]") {
+      i {
+        margin-left: 0.5em;
+      }
+
+      @include hover("&[data-label-popup]", $focusTap: "true") {
         color: hsl(20, 80%, 50%);
+        cursor: pointer;
 
         &::after {
-          top: 70%;
-          right: 20%;
+          @include horizontalCenter;
+          right: unset;
           animation-delay: 0.2s;
           color: hsl(205, 60%, 40%);
-          font-family: sans-serif;
-          font-weight: normal;
         }
       }
     }
@@ -173,14 +179,21 @@
 
         @include hover("&") {
           color: hsl(20, 80%, 50%);
-          outline: none;
         }
       }
 
+      .copied {
+        @include horizontalCenter;
+        top: 0;
+        margin-top: 3px;
+        margin-left: 0px;
+      }
+
       .copy-url {
-        @include hover("[data-label-popup]") {
+        @include hover("&[data-label-popup]", $focusTap: "true") {
           &::after {
-            top: 0.5em;
+            top: 0;
+            margin-left: 0;
           }
         }
       }
@@ -194,6 +207,7 @@
         top: 100%;
         right: 0;
         max-height: 0;
+        visibility: hidden;
         width: 100%;
         opacity: 0;
         overflow: hidden;
@@ -214,8 +228,18 @@
         &.open {
           max-height: $dropdown-height;
           opacity: 1;
+          visibility: visible;
         }
       }
     }
+  }
+}
+
+@keyframes disappear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }

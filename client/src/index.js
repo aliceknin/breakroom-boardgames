@@ -5,6 +5,9 @@ import "./index.css";
 import RouterContainer from "./containers/RouterContainer";
 import reportWebVitals from "./reportWebVitals";
 
+// eslint-disable-next-line
+import focusVisible from "focus-visible";
+
 ReactModal.setAppElement("#root");
 ReactDOM.render(
   <React.StrictMode>
