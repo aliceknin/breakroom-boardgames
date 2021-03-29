@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import ChatMessage from "./ChatMessage";
 import ChatInput from "./ChatInput";
+import RoomContext from "../contexts/RoomContext";
 import "../styles/Chat.scss";
 
-const Chat = ({ socket, roomName }) => {
+const Chat = () => {
   const [messages, setMessages] = useState([]);
   const [currentMessage, setCurrentMessage] = useState("");
+  const { socket, roomName, connected } = useContext(RoomContext);
 
   function handleMessageChange(e) {
     setCurrentMessage(e.target.value);
@@ -28,9 +30,11 @@ const Chat = ({ socket, roomName }) => {
   }
 
   useEffect(() => {
-    console.log("chat joined");
-    socket.emit("chat joined", roomName);
-  }, [socket, roomName]);
+    if (connected) {
+      console.log("connected, joining chat");
+      socket.emit("chat joined", roomName);
+    }
+  }, [socket, roomName, connected]);
 
   useEffect(() => {
     console.log("registering chat listeners...");
@@ -79,7 +83,11 @@ const Chat = ({ socket, roomName }) => {
         onChange={handleMessageChange}
         onSubmit={handleSendMessage}
       />
-      <button className="clear-chat" onClick={clearServerChat}>
+      <button
+        className="clear-chat"
+        onClick={clearServerChat}
+        disabled={!connected}
+      >
         Clear Chat
       </button>
     </div>

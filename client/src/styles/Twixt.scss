@@ -1,18 +1,52 @@
+@use "mixins" as *;
+
+.game-manager {
+  --number-of-columns: 24;
+  --board-vmin: 75;
+  --base-board-size: calc(var(--vmin, 1vmin) * var(--board-vmin));
+  --base-col-size: calc(
+    var(--base-board-size) / calc(var(--number-of-columns) + 2)
+  );
+  --min-col-size: 12px;
+  --col-size: max(var(--base-col-size), var(--min-col-size));
+  --board-size: calc(var(--col-size) * calc(var(--number-of-columns) + 2));
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  h1 {
+    margin: 0;
+    font-size: 2em;
+  }
+
+  .twixt-container {
+    flex-grow: 2;
+  }
+}
+
+@media (orientation: landscape) {
+  .game-manager {
+    --board-vmin: 60;
+  }
+}
+
 .twixt-board {
   position: relative;
   background-color: cornsilk;
-  border-radius: 10px;
+  border-radius: calc(var(--col-size) / 1.5);
+  overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(24, 1fr);
-  grid-template-rows: repeat(24, 1fr);
-  width: 78vmin;
-  height: 78vmin;
-  padding: 3vmin;
+  grid-template-columns: repeat(var(--number-of-columns), 1fr);
+  grid-template-rows: repeat(var(--number-of-columns), 1fr);
+  width: var(--board-size);
+  height: var(--board-size);
+  padding: var(--col-size);
   box-sizing: border-box;
-  box-shadow: 0px 7px 15px hsla(0, 0, 0, 0.3),
-    inset 0px -3px 2px hsla(0, 0, 0, 0.15),
-    inset 0 5px 3px hsla(55, 70, 98, 0.8);
-  margin-bottom: 1em;
+  box-shadow: 0px 7px 15px hsla(0, 0%, 0%, 30%),
+    inset 0px -3px 2px hsla(0, 0%, 0%, 15%),
+    inset 0 5px 3px hsla(55, 70%, 98%, 80%);
+  margin: 0 auto 1em auto;
 
   #coords-0-0,
   #coords-0-23,
@@ -38,108 +72,126 @@
       width: 100%;
       height: 100%;
       border-radius: 50%;
+
+      &::selection {
+        background-color: transparent;
+      }
     }
 
-    &.empty.possible-peg:hover .twixt-peg {
-      position: relative;
-      background-color: turquoise;
-      border: none;
-      box-shadow: inset 0px 2px 2px hsla(0, 0, 0, 0.5),
-        0px 0px 5px 5px hsla(174, 72, 56, 0.3);
+    @include hover("&.empty.possible-peg", $focus: false) {
+      .twixt-peg {
+        position: relative;
+        background-color: turquoise;
+        border: none;
+        box-shadow: inset 0px 2px 2px hsla(0, 0%, 0%, 50%),
+          0px 0px 5px 5px hsla(174, 72%, 56%, 30%);
+      }
     }
 
     &.empty .twixt-peg {
       background-color: grey;
       border: solid 2px cornsilk;
       box-sizing: border-box;
-      box-shadow: inset 0px 2px 2px hsla(0, 0, 0, 0.5);
+      box-shadow: inset 0px 2px 2px hsla(0, 0%, 0%, 50%);
     }
     &.red .twixt-peg {
       z-index: 2;
       background-color: red;
-      box-shadow: 0px 2px 2px hsla(0, 0, 0, 0.3),
-        inset 0px -1px 0px hsla(20, 80, 95, 0.5);
+      box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 30%),
+        inset 0px -1px 0px hsla(20, 80%, 95%, 50%);
     }
     &.black .twixt-peg {
       z-index: 2;
       background-color: black;
-      box-shadow: 0px 2px 2px hsla(0, 0, 0, 0.5),
-        inset 0px -1px 0px hsla(0, 0, 95, 0.3);
+      box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 50%),
+        inset 0px -1px 0px hsla(0, 0%, 95%, 30%);
     }
     &.possible-link .twixt-peg {
       background-color: blueviolet;
     }
     &.first-peg .twixt-peg {
-      background-color: hsl(180, 80, 40);
+      background-color: hsl(180, 80%, 40%);
     }
     &.red,
     &.black {
-      &.possible-peg:hover .twixt-peg {
-        box-shadow: 0px 2px 2px hsla(0, 0, 0, 0.5),
-          inset 0px -1px 0px hsla(0, 0, 95, 0.3),
-          0px 2px 3px 5px hsla(174, 72, 56, 0.7);
+      @include hover("&.possible-peg", $focus: false) {
+        .twixt-peg {
+          box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 50%),
+            inset 0px -1px 0px hsla(0, 0%, 95%, 30%),
+            0px 2px 3px 5px hsla(174, 72%, 56%, 70%);
+        }
       }
     }
   }
 
-  $threshold-width: 0.8%;
-  $threshold-length: 84%;
-  $threshold-margin: 8%;
-  $threshold-inset: calc(6vmin - 0.4%);
-
   .threshold {
+    --threshold-width: calc(var(--col-size) / 5);
+    --threshold-length: calc(
+      var(--col-size) * var(--number-of-columns) - var(--col-size) * 2 -
+        var(--threshold-width)
+    );
+    --threshold-margin: calc(var(--col-size) * 2 + var(--threshold-width) / 2);
+    --threshold-inset: calc(var(--col-size) * 2 - var(--threshold-width) / 2);
+
     position: absolute;
     font-size: 2px;
     text-align: center;
     color: transparent;
-    border-radius: 0.5vmin;
+    border-radius: var(--threshold-width);
     &.red {
-      width: $threshold-width;
-      height: $threshold-length;
       background-color: red;
-      top: $threshold-margin;
+      width: var(--threshold-width);
+      height: var(--threshold-length);
+      top: var(--threshold-margin);
     }
     &.black {
-      width: $threshold-length;
-      height: $threshold-width;
       background-color: black;
-      left: $threshold-margin;
+      width: var(--threshold-length);
+      height: var(--threshold-width);
+      left: var(--threshold-margin);
     }
     &.top {
-      top: $threshold-inset;
+      top: var(--threshold-inset);
     }
     &.bottom {
-      bottom: $threshold-inset;
+      bottom: var(--threshold-inset);
     }
     &.left {
-      left: $threshold-inset;
+      left: var(--threshold-inset);
     }
     &.right {
-      right: $threshold-inset;
+      right: var(--threshold-inset);
+    }
+  }
+
+  .win-message h2 {
+    text-shadow: 0 0 10px white;
+    &::first-letter {
+      text-transform: uppercase;
     }
   }
 }
 
 .twixt-link {
+  z-index: 1;
   pointer-events: none;
   position: absolute;
   height: 230%;
   width: 22%;
   top: 50%;
   left: 50%;
-  background-color: hsl(0, 85, 50);
-  z-index: 1;
+  background-color: hsl(0, 85%, 50%);
   color: transparent;
-  box-shadow: 2px 2px 2px hsla(0, 0, 0, 0.3);
+  box-shadow: 2px 2px 2px hsla(0, 0%, 0%, 30%);
   &.four-oclock {
     transform-origin: top;
     transform: rotate(-62deg);
-    box-shadow: -2px 2px 2px hsla(0, 0, 0, 0.3);
+    box-shadow: -2px 2px 2px hsla(0, 0%, 0%, 30%);
   }
   &.five-oclock {
     transform-origin: top;
     transform: rotate(-23deg);
-    box-shadow: -2px 2px 2px hsla(0, 0, 0, 0.3);
+    box-shadow: -2px 2px 2px hsla(0, 0%, 0%, 30%);
   }
   &.seven-oclock {
     transform-origin: top right;
@@ -152,62 +204,116 @@
   &.black {
     background-color: black;
   }
+  &::selection {
+    background-color: transparent;
+  }
 }
 
 .twixt-container {
-  align-self: center;
-
-  .player-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    margin-bottom: 0.5em;
-
-    button {
-      background-color: transparent;
-      box-shadow: none;
-      color: hsl(205, 30, 20);
-      text-decoration: underline;
-      padding: 0;
-
-      &:hover:not(:disabled),
-      &:focus {
-        background-color: transparent;
-        box-shadow: none;
-      }
-    }
-  }
-
-  h3 {
-    text-transform: capitalize;
-    margin: 0;
-  }
-
   button {
     text-transform: uppercase;
     letter-spacing: 0.05em;
     font-weight: bold;
-    color: hsl(0, 0, 40);
+    color: hsl(0, 0%, 40%);
     padding: 1em;
     border: none;
     border-radius: 7px;
     margin: 0.5em;
     background-color: cornsilk;
-    box-shadow: inset 0px -2px 1px hsla(0, 0, 0, 0.15),
-      inset 0px 2px 1px hsla(55, 70, 98, 0.8), 0px 3px 5px hsla(0, 0, 0, 0.15);
-    &:hover:not(:disabled),
-    &:focus {
+    box-shadow: inset 0px -2px 1px hsla(0, 0%, 0%, 15%),
+      inset 0px 2px 1px hsla(55, 70%, 98%, 80%),
+      0px 3px 5px hsla(0, 0%, 0%, 15%);
+    @include hover("&") {
       color: white;
-      background-color: hsl(20, 80, 50);
-      box-shadow: 0 5px 15px hsla(0, 0, 0, 0.15);
+      background-color: hsl(20, 80%, 50%);
+      box-shadow: inset 0px -2px 1px hsla(0, 0%, 0%, 15%),
+        inset 0px 2px 1px hsla(20, 70%, 70%, 80%),
+        0 5px 15px hsla(0, 0%, 0%, 15%);
     }
     &:disabled {
-      color: hsl(0, 0, 55);
-      background-color: hsl(48, 25, 80);
+      color: hsl(0, 0%, 55%);
+      background-color: hsl(48, 25%, 80%);
     }
     &.cancel {
-      background-color: hsl(20, 60, 85);
-      color: hsl(20, 60, 40);
+      background-color: hsl(20, 60%, 85%);
+      color: hsl(20, 60%, 40%);
     }
+  }
+}
+
+.turn-info button,
+.rules-btn {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: bold;
+  background-color: transparent;
+  box-shadow: none;
+  color: hsl(205, 30%, 20%);
+  text-decoration: underline;
+  padding: 0;
+  border: none;
+
+  @include hover("&") {
+    color: white;
+    cursor: pointer;
+  }
+
+  &:disabled {
+    color: hsl(0, 0%, 40%);
+    text-decoration: none;
+    pointer-events: none;
+  }
+}
+
+.rules-btn {
+  margin: 0.25em 0.5em 1em 0.5em;
+}
+
+.switch-player {
+  display: flex;
+  align-items: center;
+}
+
+.player-color-indicator {
+  padding: 0.75rem;
+  font-size: 0;
+  border-radius: 50%;
+  margin: 0 0.5rem 0 1em;
+
+  &.red {
+    background-color: red;
+    box-shadow: 0px 3px 3px hsla(0, 0%, 0%, 30%),
+      inset 0px 2px 0px hsla(20, 80%, 95%, 50%);
+  }
+  &.black {
+    background-color: black;
+    box-shadow: 0px 3px 3px hsla(0, 0%, 0%, 50%),
+      inset 0px 2px 0px hsla(0, 0%, 95%, 30%);
+  }
+}
+
+.turn-info {
+  width: fit-content;
+  min-width: var(--board-size);
+
+  .player-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5em;
+
+    & > *:nth-child(2) {
+      margin: 0 1rem;
+    }
+  }
+
+  h3 {
+    margin: 0;
+    text-align: center;
+  }
+
+  .info-popup {
+    bottom: -250%;
+    left: 50%;
   }
 }

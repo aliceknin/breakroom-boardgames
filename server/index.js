@@ -11,7 +11,6 @@ const io = require("socket.io")(server, {
 
 const PORT = process.env.PORT || 4005;
 
-let userCount = 0;
 let roomContents = {};
 let userNames = {};
 
@@ -20,17 +19,19 @@ function ensureRoom(roomName) {
     name: roomName,
     chat: [{ msg: `Welcome to ${roomName}!`, serverUtil: true }],
   };
+  return roomContents[roomName];
 }
 
 function broadcastToRoom(msg, roomName) {
-  ensureRoom(roomName);
+  let room = ensureRoom(roomName);
   if (typeof msg === "string") {
     msg = { msg, roomName, serverUtil: true };
   } else {
-    msg.firstFromSender = roomContents[roomName].prevSender !== msg.from;
+    msg.firstFromSender = room.prevSender !== msg.from;
   }
-  roomContents[roomName].prevSender = msg.from;
-  roomContents[roomName].chat.push(msg);
+  room.prevSender = msg.from;
+  room.chat.push(msg);
+  console.log(msg.msg);
   io.to(roomName).emit("broadcast", msg);
 }
 
@@ -44,57 +45,172 @@ function logRoom(roomName) {
   }
 }
 
+async function logRooms() {
+  try {
+    const allSockets = await io.allSockets();
+    for (let roomName of io.sockets.adapter.rooms.keys()) {
+      if (!allSockets.has(roomName)) {
+        logRoom(roomName);
+      }
+    }
+  } catch (err) {
+    console.log("couldn't log rooms:", err);
+  }
+}
+
+function joinGame(roomName, roles, socket) {
+  let room = ensureRoom(roomName);
+  let playerKey = socket.userName || socket.id;
+
+  if (room.openRoles) {
+    assignExistingRole(playerKey, room, socket);
+  } else {
+    if (roles && roles.length > 0) {
+      initRoles(playerKey, room, roles);
+    } else {
+      emitInitalGameState(room, false, socket);
+      return;
+    }
+  }
+  emitInitalGameState(room, true, socket);
+}
+
+function emitInitalGameState(room, includeTurns, socket) {
+  "gameState" in room && socket.emit("game state change", room.gameState);
+  "winner" in room && socket.emit("someone won", room.winner);
+
+  if (includeTurns) {
+    console.log("players:", room.players);
+    console.log("filled roles:", room.filledRoles);
+    "players" in room && io.to(room.name).emit("player change", room.players);
+    "turnMode" in room && socket.emit("broadcast turn mode", room.turnMode);
+  }
+}
+
+function initRoles(playerKey, room, roles) {
+  // room.turnMode = true;
+  room.openRoles = roles;
+  fillRole(playerKey, room);
+}
+
+function assignExistingRole(playerKey, room, socket) {
+  let players = room.players;
+
+  if (!players[playerKey]) {
+    room.openRoles.length > 0
+      ? fillRole(playerKey, room)
+      : (players[playerKey] = "spectator");
+  }
+
+  socket.emit("turn change", room.whoseTurnIsIt);
+}
+
+function fillRole(playerKey, room) {
+  let role = room.openRoles.pop();
+
+  room.players = room.players || {};
+  room.players[playerKey] = role;
+
+  room.filledRoles = room.filledRoles || new Map();
+  room.filledRoles.set(role, playerKey);
+
+  room.turnIterator = room.turnIterator || makeTurnIterator(room.filledRoles);
+  !room.whoseTurnIsIt && goToNextTurn(room);
+}
+
+function* makeTurnIterator(filledRoles) {
+  while (true) {
+    if (filledRoles.size > 0) {
+      for (let role of filledRoles) {
+        yield role;
+      }
+    } else {
+      yield null;
+    }
+  }
+}
+
+function goToNextTurn(room) {
+  if (room?.turnIterator) {
+    let nextPlayer = room.turnIterator.next().value;
+    room.whoseTurnIsIt = nextPlayer;
+
+    if (nextPlayer) {
+      io.to(room.name).emit("turn change", nextPlayer);
+      console.log(`it's ${nextPlayer}'s turn in ${room.name}`);
+    }
+  } else {
+    console.log("tried to go to next turn with no turn iterator");
+  }
+}
+
+function leaveGame(playerKey, room) {
+  let players = room?.players;
+
+  if (players?.[playerKey]) {
+    let role = players[playerKey];
+
+    if (role !== "spectator" && room.filledRoles.get(role) === playerKey) {
+      room.openRoles.push(role);
+      room.filledRoles.delete(role);
+      if (room.whoseTurnIsIt?.[1] === playerKey) {
+        goToNextTurn(room);
+      }
+    }
+
+    delete players[playerKey];
+    io.to(room.name).emit("player change", players);
+  }
+}
+
+function restartGame(room) {
+  io.to(room.name).emit("restart game");
+  room.gameState = null;
+  room.winner = null;
+}
+
 io.on("connection", (socket) => {
   console.log("a user connected");
-  userCount++;
-  io.emit("user joined", userCount);
 
   socket.on("join room", ({ roomName, userName }, ack) => {
     userNames[socket.id] = userName;
     socket.userName = userName;
+
     if (!socket.rooms.has(roomName)) {
+      let room = ensureRoom(roomName);
+
       socket.join(roomName);
+      ack && ack(room);
+      broadcastToRoom(`${userName} joined ${roomName}!`, roomName);
 
-      ensureRoom(roomName);
-
-      ack && ack(roomContents[roomName]);
-      socket.emit("replace msgs", roomContents[roomName].chat);
+      socket.emit("room joined", { roomName, userName });
+      socket.emit("replace msgs", room.chat);
       logRoom(roomName);
     }
   });
 
-  socket.on("room joined", ({ roomName, userName }) => {
-    console.log(`${userName || ""} joined`, roomName);
-    broadcastToRoom(`${userName} joined ${roomName}!`, roomName);
-  });
-
   socket.on("chat joined", (roomName) => {
-    console.log(roomContents[roomName].chat.map((msg) => msg.msg));
-    socket.emit("replace msgs", roomContents[roomName].chat);
+    if (socket.rooms.has(roomName)) {
+      console.log(roomContents[roomName].chat.map((msg) => msg.msg));
+      socket.emit("replace msgs", roomContents[roomName].chat);
+    } else {
+      console.log("tried to join chat before joining room");
+    }
   });
 
-  socket.on("game joined", (roomName) => {
-    // console.log(
-    //   roomContents[roomName].gameState
-    //     ? roomContents[roomName].gameState[0]
-    //     : "no game state yet"
-    // );
-    socket.emit("game state change", roomContents[roomName].gameState);
+  socket.on("game joined", ({ roomName, roles }) => {
+    socket.rooms.has(roomName)
+      ? joinGame(roomName, roles, socket)
+      : console.log("tried to join game before joining room");
   });
-
-  let secondsSinceConnection = 0;
-  let interval = setInterval(() => {
-    secondsSinceConnection++;
-    socket.emit("count", secondsSinceConnection);
-  }, 1000);
 
   socket.on("msg", (msg) => {
     broadcastToRoom(msg, msg.roomName);
-    console.log(msg.msg);
   });
 
   socket.on("clear chat", (roomName) => {
     roomContents[roomName].chat = [];
+    roomContents[roomName].prevSender = null;
     io.to(roomName).emit("clear chat");
   });
 
@@ -104,22 +220,48 @@ io.on("connection", (socket) => {
     socket.to(roomName).emit("game state change", newState);
   });
 
+  socket.on("turn ended", (roomName) => {
+    goToNextTurn(roomContents[roomName]);
+  });
+
+  socket.on("we won", ({ player, roomName }) => {
+    let room = roomContents[roomName];
+    console.log(player, "won in ", roomName);
+    room.winner = player;
+    socket.to(roomName).emit("someone won", player);
+
+    if (player && room.turnMode) {
+      room.turnMode = false;
+      io.to(roomName).emit("broadcast turn mode", false);
+    }
+  });
+
+  socket.on("set turn mode", ({ turnMode, roomName }) => {
+    let room = roomContents[roomName];
+    console.log("setting turn mode in", roomName, "to", turnMode);
+    room.turnMode = turnMode;
+
+    turnMode && restartGame(room);
+
+    socket.to(roomName).emit("broadcast turn mode", turnMode);
+  });
+
   socket.on("disconnecting", () => {
-    console.log(
-      socket.userName || socket.id,
-      "disconnecting from",
-      socket.rooms
-    );
+    let playerKey = socket.userName || socket.id;
+
     for (let roomName of socket.rooms) {
-      broadcastToRoom(`${socket.userName || socket.id} left.`, roomName);
+      let room = roomContents[roomName];
+
+      if (room) {
+        console.log(`${playerKey} is leaving ${roomName}`);
+        room.chat && broadcastToRoom(`${playerKey} left.`, roomName);
+        room.players && leaveGame(playerKey, room);
+      }
     }
   });
 
   socket.on("disconnect", () => {
     console.log("user disconnected");
-    clearInterval(interval);
-    userCount--;
-    io.emit("user left", userCount);
   });
 });
 

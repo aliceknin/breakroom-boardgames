@@ -1,10 +1,13 @@
+@use "mixins" as *;
+
 .chat {
-  background-color: hsl(205, 70, 95);
+  background-color: hsl(205, 70%, 95%);
   overflow: hidden;
   position: relative;
   display: flex;
   flex-direction: column;
-  height: 100%;
+  // height: 100%;
+  flex-grow: 2;
   font-size: 14px;
 }
 
@@ -12,18 +15,21 @@
   position: absolute;
   right: 2em;
   top: 1em;
-  box-shadow: 0px 7px 15px hsla(0, 0, 0, 0.15), 0px 5px 5px hsla(0, 0, 0, 0.05);
+  box-shadow: 0px 7px 15px hsla(0, 0%, 0%, 15%), 0px 5px 5px hsla(0, 0%, 0%, 5%);
   border: none;
   padding: 0.75em;
   border-radius: 7px;
-  background-color: hsl(205, 80, 85);
+  background-color: hsl(205, 80%, 85%);
 
-  &:hover,
-  &:focus {
+  @include hover("&") {
     cursor: pointer;
-    background-color: hsl(20, 80, 50);
+    background-color: hsl(20, 80%, 50%);
     color: white;
-    outline: none;
+  }
+
+  &:disabled {
+    background-color: hsl(20, 20%, 80%);
+    color: white;
   }
 }
 
@@ -33,7 +39,7 @@
   padding: 20px;
   flex-grow: 2;
   overflow: auto;
-  box-shadow: inset 2px -5px 5px hsla(0, 0, 0, 0.05);
+  box-shadow: inset 2px -5px 5px hsla(0, 0%, 0%, 5%);
 }
 
 .chat-message {
@@ -43,13 +49,13 @@
   &.from-me {
     align-items: flex-end;
     .message {
-      background-color: hsl(20, 90, 93);
+      background-color: hsl(20, 90%, 93%);
     }
   }
 
   &.from-person {
     .message {
-      box-shadow: 0px 2px 2px hsla(0, 0, 0, 0.05);
+      box-shadow: 0px 2px 2px hsla(0, 0%, 0%, 5%);
     }
   }
 
@@ -61,7 +67,7 @@
       font-size: 14px;
       padding: 0 0.65rem;
       margin: 0.5rem 0;
-      color: hsl(205, 15, 60);
+      color: hsl(205, 15%, 60%);
     }
   }
 
@@ -70,7 +76,7 @@
     font-size: 12px;
     width: fit-content;
     margin: 0.5rem 0 3px 0;
-    color: hsl(205, 80, 35);
+    color: hsl(205, 80%, 35%);
   }
   .message {
     background-color: white;
@@ -83,49 +89,6 @@
 }
 
 .chat-form {
-  display: flex;
-  flex-wrap: nowrap;
   width: 100%;
   background-color: white;
-
-  input,
-  button {
-    border: none;
-    padding: 1em;
-    &:hover,
-    &:focus {
-      outline: none;
-    }
-  }
-
-  input {
-    background-color: hsl(20, 50, 95);
-    flex-grow: 2;
-    margin-right: 0;
-
-    &::placeholder {
-      color: hsl(20, 15, 60);
-    }
-
-    &:hover,
-    &:focus {
-      background-color: white;
-
-      &::placeholder {
-        color: hsl(0, 0, 55);
-      }
-    }
-  }
-
-  button {
-    margin-left: 0;
-    background-color: hsl(20, 80, 50);
-    color: white;
-
-    &:hover,
-    &:focus {
-      cursor: pointer;
-      background-color: hsl(205, 80, 70);
-    }
-  }
 }

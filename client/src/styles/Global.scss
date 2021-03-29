@@ -1,3 +1,183 @@
+@use "mixins" as *;
+@use "sass:math";
+
+body {
+  color: hsl(0, 0%, 10%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.js-focus-visible :focus:not(.focus-visible) {
+  outline: none;
+}
+
 button {
   transition: all 0.2s ease;
+}
+
+.input-group {
+  display: flex;
+  flex-wrap: nowrap;
+
+  input,
+  button {
+    border: none;
+    padding: 1em;
+    margin: 0;
+  }
+
+  input {
+    background-color: hsl(20, 50%, 95%);
+    flex-grow: 2;
+    margin-right: 0;
+    min-width: 70%;
+
+    &::placeholder {
+      color: hsl(20, 15%, 60%);
+    }
+
+    @include hover {
+      background-color: white;
+
+      &::placeholder {
+        color: hsl(0, 0%, 55%);
+      }
+    }
+
+    &:disabled {
+      background-color: hsl(0, 0%, 95%);
+
+      &::placeholder {
+        color: hsl(0, 0%, 75%);
+      }
+    }
+  }
+
+  button {
+    margin-left: 0;
+    background-color: hsl(20, 80%, 50%);
+    color: white;
+
+    @include hover("&") {
+      cursor: pointer;
+      background-color: hsl(205, 80%, 70%);
+    }
+
+    &:disabled {
+      background-color: hsl(20, 20%, 80%);
+    }
+  }
+}
+
+.info-popup-group {
+  display: inline-block;
+  position: relative;
+  width: fit-content;
+
+  @include hover($focusTap: true) {
+    .info-popup {
+      display: block;
+    }
+  }
+
+  @include hover($focus: false) {
+    .info-popup {
+      @include appear($delay: 0.5s);
+    }
+  }
+}
+
+.info-popup {
+  z-index: 6;
+  display: none;
+  margin: 0;
+  position: absolute;
+  bottom: 100%;
+  min-width: 250px;
+  max-width: 300px;
+  padding: 1em;
+  background-color: hsl(205, 70%, 95%);
+  border-radius: 10px;
+  box-shadow: 0px 0px 7px 5px hsla(0, 0%, 0%, 15%);
+
+  @supports (backdrop-filter: blur(3px)) {
+    background-color: hsla(205, 70%, 95%, 85%);
+    backdrop-filter: blur(3px);
+  }
+}
+
+@include hover("[data-label-popup]", $focusTap: true) {
+  &::after {
+    content: attr(aria-label);
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin: 0.5em;
+    background-color: white;
+    border-radius: 0.5em;
+    overflow: hidden;
+    padding: 0.5em;
+    z-index: 6;
+  }
+}
+
+@include hover("[data-label-popup]", $focus: false) {
+  &::after {
+    @include appear;
+  }
+}
+
+button.close {
+  $button-padding: 0.5rem;
+  $button-size: 2 * $button-padding;
+  $icon-size: $button-size * 1.3;
+  $border-width: 2px;
+
+  position: absolute;
+  top: 0;
+  right: 0;
+  color: hsl(0, 0%, 30%);
+  background-color: transparent;
+  box-shadow: none;
+  margin: 0.5rem;
+  padding: $button-padding * 2;
+  border: none;
+  height: $button-size;
+  width: $button-size;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  i.close {
+    position: relative;
+    padding: $button-padding;
+    width: $button-size;
+    height: $button-size;
+
+    &::before,
+    &::after {
+      content: "";
+      position: absolute;
+      top: calc(50% - #{$border-width / 2});
+      left: ($icon-size - $button-size) / -2;
+      width: $icon-size;
+      border-top: $border-width solid;
+      transform-origin: center;
+    }
+  }
+
+  i.close::before {
+    transform: rotate(45deg);
+  }
+
+  i.close::after {
+    transform: rotate(-45deg);
+  }
+
+  @include hover {
+    background-color: hsl(20, 80%, 50%);
+    color: white;
+  }
 }

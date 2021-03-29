@@ -1,0 +1,84 @@
+.ReactModal__Content {
+  transform: translateY(-10%);
+  transition: all 200ms ease-out;
+  opacity: 0;
+
+  width: fit-content;
+  margin: 10vh auto;
+  max-width: min(650px, 80vw);
+  background: #fff;
+  border-radius: 10px;
+  outline: none;
+  padding: 25px;
+  box-shadow: 0 10px 30px 0 #8a8a8a;
+
+  & > *:nth-child(2) {
+    margin-top: 0;
+  }
+
+  & > *:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.ReactModal__Content--after-open {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+.ReactModal__Content--before-close {
+  opacity: 0;
+}
+
+.ReactModal__Overlay {
+  z-index: 10;
+  overflow: auto;
+  backdrop-filter: blur(3px);
+  opacity: 1;
+  transition: opacity 200ms ease;
+}
+
+.ReactModal__Overlay--after-open {
+  opacity: 1;
+}
+
+.ReactModal__Overlay--before-close {
+  opacity: 0;
+}
+
+$list-indent: 1em;
+
+.rules {
+  max-width: 450px;
+  h2 {
+    text-align: center;
+    border-bottom: 2px solid;
+    padding-bottom: 0.25em;
+  }
+  ol {
+    padding-left: $list-indent;
+  }
+  li,
+  .img-wrapper,
+  .note {
+    margin-bottom: 0.5em;
+  }
+  img {
+    width: 65px;
+    height: 50px;
+    border-radius: 5px;
+  }
+  .img-wrapper {
+    display: flex;
+    justify-content: center;
+    margin-right: $list-indent;
+  }
+  .note {
+    font-size: 0.9em;
+    padding: 0.75em;
+    color: hsl(0, 0%, 25%);
+    border-radius: 0.5em;
+    border: 0.3em dotted hsl(47, 90%, 60%);
+    margin-right: $list-indent;
+  }
+}

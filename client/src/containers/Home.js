@@ -13,7 +13,10 @@ const Home = () => {
   function handleSubmit(e) {
     e.preventDefault();
     // some kind of input validation
-    setSubmitted(true);
+    if (roomName) {
+      setRoomName((r) => r.toLowerCase());
+      setSubmitted(true);
+    }
   }
 
   return (
@@ -23,13 +26,13 @@ const Home = () => {
       ) : (
         <header>
           <h1>Breakroom Boardgames</h1>
-          <h3>play some games or something</h3>
-          <form className="room-form" onSubmit={handleSubmit}>
+          <h2>Play games with friends anywhere with an internet connection.</h2>
+          <form className="room-form input-group" onSubmit={handleSubmit}>
             <input
               type="text"
-              required
-              aria-label="Join or create a room"
-              placeholder="Join or create a room..."
+              // required
+              aria-label="Name your game room"
+              placeholder="Name your game room..."
               value={roomName}
               onChange={handleInputChange}
             ></input>

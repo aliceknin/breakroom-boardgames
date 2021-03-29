@@ -3,17 +3,21 @@ import { useParams } from "react-router-dom";
 import socketIOClient from "socket.io-client";
 import GenerateName from "project-name-generator";
 import Chat from "../components/Chat";
-import Window from "../components/Window";
-import TwixtBoard from "../components/TwixtBoard";
+import WindowLayout from "../components/WindowLayout";
+import Twixt from "../components/Twixt";
 import "../styles/Room.scss";
+import RoomContext from "../contexts/RoomContext";
+import LoadingWrapper from "../components/LoadingWrapper";
+import RoomHeader from "../components/RoomHeader";
 
 const ENDPOINT = "http://localhost:4005";
 
 const Room = () => {
   const [socket, setSocket] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasFailed, setHasFailed] = useState(false);
   const [connected, setConnected] = useState(false);
   const { roomName } = useParams();
-  const [mode, setMode] = useState("overlay");
 
   useEffect(() => {
     console.log("trying to connect...");
@@ -24,67 +28,84 @@ const Room = () => {
     setSocket(socket);
     socket.userName = GenerateName().dashed;
 
-    const onConnect = () => {
+    function onConnect() {
       console.log("saw connection");
       socket.emit(
         "join room",
         { roomName, userName: socket.userName },
         (room) => {
           if (room.name === roomName) {
+            setIsLoading(false);
+            setHasFailed(false);
             setConnected(true);
-            socket.emit("room joined", { roomName, userName: socket.userName });
             console.log("room joined: ", roomName);
           } else {
             console.log("failed to join", roomName);
           }
         }
       );
-    };
+    }
 
-    const cleanup = () => {
+    function onDisconnect(reason) {
+      console.log("disconnected:", reason);
+      setConnected(false);
+    }
+
+    function onConnectError(error) {
+      console.log("connect error:", error);
+      setConnected(false);
+
+      if (isLoading) {
+        setIsLoading(false);
+        setHasFailed(true);
+      }
+    }
+
+    function cleanup() {
       socket.off("connect", onConnect);
+      socket.off("connect_error", onConnectError);
+      socket.off("disconnect", onDisconnect);
       console.log("disconnecting");
       socket.disconnect();
-    };
-
-    const cleanupBeforeUnload = () => {
-      console.log("cleaning up before unload");
-      cleanup();
-    };
+    }
 
     socket.on("connect", onConnect);
-    window.addEventListener("beforeunload", cleanupBeforeUnload);
+    socket.on("connect_error", onConnectError);
+    socket.on("disconnect", onDisconnect);
+    window.addEventListener("beforeunload", cleanup);
 
     return () => {
       console.log("unmounting...");
       cleanup();
-      window.removeEventListener("beforeunload", cleanupBeforeUnload);
+      window.removeEventListener("beforeunload", cleanup);
     };
+    /* since isLoading is used in an event listener rather than just the 
+       useEffect, I don't actually want this to be called when it changes*/
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roomName]);
 
   return (
-    <>
-      {connected ? (
-        <div className={"room " + mode}>
-          <div className="content-container">
-            <h1>
-              Welcome to room {roomName}
-              {socket.userName && ", " + socket.userName}!
-            </h1>
-            {/* <div className="buttons-container">
-              <button onClick={() => socket.disconnect()}>Disconnect</button>
-              <button onClick={() => socket.connect()}>Connect</button>
-            </div> */}
-            <TwixtBoard socket={socket} roomName={roomName} />
-          </div>
-          <Window mode={mode} setMode={setMode}>
-            <Chat socket={socket} roomName={roomName} />
-          </Window>
+    <LoadingWrapper
+      isLoading={isLoading}
+      hasFailed={hasFailed}
+      errorMessage="Something went wrong connecting to the server. Try restarting it?"
+    >
+      <RoomContext.Provider value={{ socket, roomName, connected }}>
+        <div className="room">
+          {!connected && <div className="disconnected">Disconnected</div>}
+          <RoomHeader socket={socket} roomName={roomName} />
+          <WindowLayout
+            mainContent={
+              <section>
+                <Twixt />
+              </section>
+            }
+            windowContent={<Chat />}
+            windowTitle="Room Chat"
+          />
         </div>
-      ) : (
-        <p>connecting...</p>
-      )}
-    </>
+      </RoomContext.Provider>
+    </LoadingWrapper>
   );
 };
 

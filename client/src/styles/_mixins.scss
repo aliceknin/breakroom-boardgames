@@ -1,0 +1,117 @@
+$desktop-width: 1024px;
+$super-desktop-width: 1400px;
+$mobile-width: 680px;
+$small-mobile-width: 375px;
+
+@mixin hover(
+  $selector: "&",
+  $focus: true,
+  $focusDesktop: true,
+  $focusMobile: true,
+  $focusTap: false
+) {
+  @media (hover: hover) {
+    #{$selector}:hover:not(:disabled) {
+      @content;
+    }
+    @if $focusDesktop and $focus {
+      @include focus($selector) {
+        @content;
+      }
+    }
+  }
+  @media (hover: none) {
+    $focus-visible-only: not $focusTap;
+    @if $focusMobile and $focus {
+      @include focus($selector, $focus-visible-only) {
+        @content;
+      }
+    }
+  }
+}
+
+@mixin focus($selector: "&", $focus-visible-only: true) {
+  @if $focus-visible-only {
+    $selector: $selector + ".focus-visible";
+  }
+
+  #{$selector}:focus {
+    outline: none;
+    @content;
+  }
+}
+
+@mixin small-mobile {
+  @media (max-width: #{$small-mobile-width - 1px}) {
+    @content;
+  }
+}
+
+@mixin mobile {
+  @media (max-width: #{$mobile-width - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (min-width: #{$mobile-width}) and (max-width: #{$desktop-width - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-and-smaller {
+  @media (max-width: #{$desktop-width - 1px}) {
+    @content;
+  }
+}
+
+@mixin tablet-and-larger {
+  @media (min-width: $mobile-width) {
+    @content;
+  }
+}
+
+@mixin desktop {
+  @media (min-width: #{$desktop-width}) {
+    @content;
+  }
+}
+
+@mixin super_desktop {
+  @media (min-width: #{$super-desktop-width}) {
+    @content;
+  }
+}
+
+@mixin appear($selector: "&", $duration: 0.2s, $delay: 0.75s) {
+  #{$selector} {
+    opacity: 0;
+    animation: appear $duration ease $delay forwards;
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+@mixin verticalCenter() {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+}
+@mixin horizontalCenter() {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+@mixin totalCenter() {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}

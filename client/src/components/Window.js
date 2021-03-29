@@ -1,50 +1,66 @@
-import React, { useState } from "react";
+import React from "react";
 import "../styles/Window.scss";
 
-const Window = ({ children, mode, setMode }) => {
-  const [open, setOpen] = useState(true);
-
-  function setViewMode(mode) {
+const Window = ({ children, title, viewMode, setViewMode, open, setOpen }) => {
+  function handleClick(e) {
+    let viewMode = e.target.closest("button").className;
     setOpen(true);
-    setMode(mode);
+    setViewMode(viewMode);
   }
 
   return (
-    <div className={"window " + mode + (open ? " open" : " closed")}>
-      <div className="bar">
-        <span className="title">Room Chat</span>
-        <span className="buttons-container">
-          <button
-            className={open ? "open" : "closed"}
-            onClick={() => setOpen((o) => !o)}
-          >
-            {open ? "_" : "^"}
-          </button>
-          {mode !== "overlay" && (
-            <button className="overlay" onClick={() => setViewMode("overlay")}>
-              O
-            </button>
-          )}
-          {mode !== "dock-side" && (
+    <aside className={`window ${viewMode} ${open ? "open" : "closed"}`}>
+      <div className="window-container">
+        <div className="bar">
+          <span className="title">{title}</span>
+          <span className="buttons-container">
             <button
-              className="dock-side"
-              onClick={() => setViewMode("dock-side")}
+              className={open ? "open" : "closed"}
+              aria-label={open ? "Minimize" : "Maximize"}
+              onClick={() => setOpen((o) => !o)}
             >
-              _|
+              <i
+                className={
+                  open ? "far fa-window-minimize" : "fas fa-chevron-up"
+                }
+              />
             </button>
-          )}
-          {mode !== "dock-bottom" && (
-            <button
-              className="dock-bottom"
-              onClick={() => setViewMode("dock-bottom")}
-            >
-              |_|
-            </button>
-          )}
-        </span>
+            <span className="mode-buttons" onClick={handleClick}>
+              {viewMode !== "overlay" && (
+                <button
+                  className="overlay"
+                  aria-label="Overlay"
+                  data-label-popup
+                >
+                  <i className="far fa-window-restore"></i>
+                </button>
+              )}
+              {viewMode !== "dock-side" && (
+                <button
+                  className="dock-side"
+                  aria-label="Dock side"
+                  data-label-popup
+                >
+                  <i className="far fa-window-maximize"></i>
+                </button>
+              )}
+              {viewMode !== "dock-bottom" && (
+                <button
+                  className="dock-bottom"
+                  aria-label="Dock Bottom"
+                  data-label-popup
+                >
+                  <i className="far fa-window-maximize"></i>
+                </button>
+              )}
+            </span>
+          </span>
+        </div>
+        <div className={open ? "content-open" : "content-closed"}>
+          {children}
+        </div>
       </div>
-      <div className={open ? "content-open" : "content-closed"}>{children}</div>
-    </div>
+    </aside>
   );
 };
 

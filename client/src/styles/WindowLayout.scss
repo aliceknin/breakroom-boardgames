@@ -1,0 +1,43 @@
+.window-layout {
+  --overlay-width: 360px;
+  --dock-side-width: 250px;
+  --dock-bottom-height: 240px;
+  --layout-height: 100vh;
+  --full-vh: var(--layout-height);
+  --full-vw: 100vw;
+  --full-vmin: min(var(--full-vh), var(--full-vw));
+  --vmin: calc(var(--full-vmin) / 100);
+  --window-min-width: min(var(--overlay-width), var(--dock-side-width));
+
+  display: flex;
+  flex-wrap: nowrap;
+  height: var(--layout-height);
+  width: 100vw;
+  max-width: 100%;
+  max-height: var(--layout-height);
+  overflow: hidden;
+
+  .content-container {
+    position: relative;
+    flex-grow: 2;
+    overflow: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  &.dock-side {
+    flex-direction: row;
+
+    &.open {
+      --full-vw: calc(100vw - var(--dock-side-width));
+    }
+  }
+
+  &.dock-bottom {
+    flex-direction: column;
+
+    &.open {
+      --full-vh: calc(100vh - var(--dock-bottom-height));
+    }
+  }
+}

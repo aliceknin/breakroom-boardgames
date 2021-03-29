@@ -1,39 +1,234 @@
+@use "mixins" as *;
+
 .room {
+  $header-padding: 1em;
+  $header-line-height: 1.3em;
+  --header-height: calc(#{$header-line-height} + (2 * #{$header-padding}));
+
   display: flex;
-  flex-wrap: nowrap;
-  height: 100vh;
+  flex-direction: column;
+  flex-grow: 2;
+  background-color: hsl(205, 35%, 60%);
   width: 100vw;
-  max-width: 100%;
-  max-height: 100%;
+  height: 100vh;
   overflow: hidden;
 
-  &.dock-side {
-    flex-direction: row;
-
-    .content-container {
-      box-shadow: inset -5px -5px 5px hsla(0, 0, 0, 0.15);
-    }
+  section {
+    padding: 1em 10% 2em;
   }
 
-  &.dock-bottom {
-    flex-direction: column;
-
-    .content-container {
-      box-shadow: inset 0px -5px 5px hsla(0, 0, 0, 0.15);
-    }
-  }
-
-  .content-container {
-    padding: 0 10vw;
-    background-color: hsl(205, 30, 60);
+  .game-manager {
     flex-grow: 2;
-    overflow: auto;
-    display: flex;
-    flex-direction: column;
+  }
 
-    .buttons-container {
-      margin-bottom: 1em;
-      text-align: center;
+  .disconnected {
+    z-index: 6;
+    position: absolute;
+    right: 50%;
+    transform: translate(50%);
+    background-color: hsla(47, 100%, 85%, 95%);
+    border-radius: 5px;
+    box-shadow: 0 5px 10px hsla(0, 0%, 0%, 25%);
+    padding: 0.5em 1em;
+    margin: 1em 0;
+  }
+
+  header {
+    z-index: 5;
+    position: sticky;
+    top: 0;
+    background: hsl(205, 60%, 40%);
+    background: linear-gradient(
+      90deg,
+      hsl(205, 60%, 40%),
+      hsl(205, 70%, 43%),
+      hsl(205, 60%, 40%)
+    );
+    color: hsl(205, 90%, 95%);
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 3px 3px 5px hsla(205, 50%, 10%, 15%);
+    line-height: $header-line-height;
+
+    & > * {
+      white-space: nowrap;
+      overflow: hidden;
+
+      &:not(:first-child) {
+        text-overflow: ellipsis;
+      }
     }
+
+    & > *:first-child {
+      width: 33.333%;
+      min-width: fit-content;
+    }
+
+    button.menu {
+      $menu-border-width: 3px;
+      $menu-button-size: calc(
+        2 * (#{$header-line-height} - #{$menu-border-width})
+      );
+
+      color: inherit;
+      display: none;
+      background: transparent;
+      border: solid $menu-border-width;
+      border-radius: 50%;
+      margin-right: $header-padding;
+      width: $menu-button-size;
+      height: $menu-button-size;
+
+      i {
+        transform: translateY($header-line-height / 10);
+        font-size: 1.1em;
+      }
+    }
+
+    .dropdown-content {
+      display: flex;
+      flex-grow: 1;
+      padding: $header-padding;
+      padding-left: 0;
+      width: 66.666%;
+      & > * {
+        flex-grow: 1;
+      }
+
+      & > *:first-child {
+        text-align: center;
+      }
+
+      & > *:last-child {
+        text-align: right;
+      }
+    }
+
+    a {
+      color: inherit;
+      display: block;
+      width: fit-content;
+      padding: $header-padding;
+      padding-right: 0.5em;
+      transition: all 0.2s ease;
+      @media (hover: hover) {
+        text-decoration: none;
+      }
+
+      @include hover {
+        color: hsl(20, 80%, 50%);
+      }
+    }
+
+    .room-name {
+      span:first-child {
+        font-weight: bold;
+      }
+    }
+
+    @include tablet-and-larger {
+      .copied {
+        left: 2em;
+        transform: none;
+      }
+    }
+
+    .copy-url {
+      background-color: transparent;
+      border: none;
+      padding: 0;
+      color: inherit;
+      font-size: inherit;
+      font-family: inherit;
+
+      i {
+        margin-left: 0.5em;
+      }
+
+      @include hover("&[data-label-popup]", $focusTap: "true") {
+        color: hsl(20, 80%, 50%);
+        cursor: pointer;
+
+        &::after {
+          @include horizontalCenter;
+          right: unset;
+          animation-delay: 0.2s;
+          color: hsl(205, 60%, 40%);
+        }
+      }
+    }
+  }
+
+  @include mobile {
+    header {
+      button.menu {
+        display: inline-block;
+
+        @include hover("&") {
+          color: hsl(20, 80%, 50%);
+        }
+      }
+
+      .copied {
+        top: 0;
+        margin-top: 3px;
+        margin-left: 0px;
+      }
+
+      .copy-url {
+        @include hover("&[data-label-popup]", $focusTap: "true") {
+          &::after {
+            top: 0;
+            margin-left: 0;
+          }
+        }
+      }
+
+      .dropdown-content {
+        $header-padding: 0.75em;
+        $dropdown-height: (2 * $header-line-height) + (3 * $header-padding);
+
+        flex-direction: column-reverse;
+        position: absolute;
+        top: 100%;
+        right: 0;
+        max-height: 0;
+        visibility: hidden;
+        width: 100%;
+        opacity: 0;
+        overflow: hidden;
+        transition: all 0.2s ease;
+        padding: 0;
+        background: inherit;
+        box-shadow: inset 2px 2px 2px hsla(0, 0%, 0%, 15%);
+
+        & > * {
+          padding-bottom: $header-padding;
+        }
+
+        & > *:last-child {
+          text-align: center;
+          padding-top: $header-padding;
+        }
+
+        &.open {
+          max-height: $dropdown-height;
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+    }
+  }
+}
+
+@keyframes disappear {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
   }
 }
