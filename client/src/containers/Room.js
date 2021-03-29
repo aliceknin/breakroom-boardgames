@@ -66,7 +66,7 @@ const Room = () => {
       socket.off("connect_error", onConnectError);
       socket.off("disconnect", onDisconnect);
       console.log("disconnecting");
-      socket.disconnect();
+      // socket.disconnect();
     }
 
     socket.on("connect", onConnect);

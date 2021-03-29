@@ -12,6 +12,7 @@
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+  padding-top: var(--header-height);
 
   section {
     padding: 1em 10% 2em;
@@ -35,7 +36,7 @@
 
   header {
     z-index: 5;
-    position: sticky;
+    position: fixed;
     top: 0;
     background: hsl(205, 60%, 40%);
     background: linear-gradient(
