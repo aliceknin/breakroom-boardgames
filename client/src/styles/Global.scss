@@ -1,6 +1,10 @@
 @use "mixins" as *;
 @use "sass:math";
 
+body {
+  color: hsl(0, 0%, 10%);
+}
+
 * {
   box-sizing: border-box;
 }

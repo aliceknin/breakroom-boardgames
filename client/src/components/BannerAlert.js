@@ -19,7 +19,7 @@ const BannerAlert = ({
     const closeTimeoutID = setTimeout(onClose, duration);
     setCloseTimeout(closeTimeoutID);
 
-    console.log(`refresh: ${refresh} timeoutID ${closeTimeoutID}`);
+    refresh && console.log(`refresh: ${refresh} timeoutID ${closeTimeoutID}`);
 
     return () => {
       clearTimeout(fadeTimeoutID);

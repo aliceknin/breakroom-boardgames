@@ -1,6 +1,8 @@
 @use "mixins" as *;
 
 .home {
+  font-family: "Merriweather Sans", sans-serif;
+
   input,
   button {
     padding: 0.65em;
@@ -28,9 +30,20 @@
     justify-content: center;
     font-size: calc(15px + 2vmin);
     color: hsl(205, 70%, 95%);
-    padding: 0 10vh 10vh 10vh;
+    padding: 0 10vh 15vh 10vh;
     box-sizing: border-box;
     text-align: center;
+
+    h1 {
+      font-weight: 300;
+      margin-bottom: 0em;
+    }
+
+    h2 {
+      font-weight: 400;
+      font-size: 1em;
+      margin-bottom: 2em;
+    }
   }
 
   .room-form {
@@ -38,7 +51,7 @@
 
     input,
     button {
-      font-size: 22px;
+      font-size: 20px;
       padding: 0.75em;
     }
 
