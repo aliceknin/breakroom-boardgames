@@ -1,22 +1,16 @@
 import React, { useState } from "react";
+import BannerAlert from "./BannerAlert";
 
 const RoomHeader = ({ socket, roomName }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [copiedTimeout, setCopiedTimeout] = useState(null);
+  const [copyCount, setCopyCount] = useState(0);
 
   function copyURL() {
     console.log("trying to copy " + window.location);
     navigator.clipboard.writeText(window.location);
+    setCopyCount((c) => c + 1);
     setCopied(true);
-    let timeoutID = setTimeout(() => setCopied(false), 2000);
-    setCopiedTimeout(timeoutID);
-  }
-
-  function closeCopyAlert() {
-    clearTimeout(copiedTimeout);
-    setCopied(false);
-    setCopiedTimeout(null);
   }
 
   return (
@@ -27,12 +21,13 @@ const RoomHeader = ({ socket, roomName }) => {
         </a>
       </div>
       {copied && (
-        <div className="alert copied">
-          Copied!{" "}
-          <button className="close" onClick={closeCopyAlert}>
-            <i className="close"></i>
-          </button>
-        </div>
+        <BannerAlert
+          className="copied"
+          onClose={() => setCopied(false)}
+          refresh={copyCount}
+        >
+          Copied!
+        </BannerAlert>
       )}
       <button onClick={() => setDropdownOpen((o) => !o)} className="menu">
         <i className="fas fa-info"></i>

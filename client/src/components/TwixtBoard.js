@@ -12,6 +12,7 @@ import {
 import "../styles/Twixt.scss";
 import Overlay from "./Overlay";
 import RoomContext from "../contexts/RoomContext";
+import BannerAlert from "./BannerAlert";
 
 const TwixtBoard = ({
   board,
@@ -30,6 +31,7 @@ const TwixtBoard = ({
   const [linkMode, setLinkMode] = useState(false);
   const [firstPeg, setFirstPeg] = useState(null);
   const [havePlacedPeg, setHavePlacedPeg] = useState(false);
+  const [showPegAlert, setShowPegAlert] = useState(false);
   const { connected } = useContext(RoomContext);
 
   function handleHoleClick(e) {
@@ -46,6 +48,8 @@ const TwixtBoard = ({
     let row = Number(hole.dataset.row);
     let col = Number(hole.dataset.col);
     hole = b[row][col];
+
+    turnMode && havePlacedPeg && setShowPegAlert(true);
 
     if (linkMode) {
       console.log("link mode");
@@ -284,6 +288,16 @@ const TwixtBoard = ({
           </button>
         )}
       </div>
+      {showPegAlert && (
+        <BannerAlert
+          className="peg-alert"
+          onClose={() => setShowPegAlert(false)}
+          duration="6000"
+        >
+          You've placed your peg already, but you can still make as many links
+          as you can.
+        </BannerAlert>
+      )}
     </div>
   );
 };

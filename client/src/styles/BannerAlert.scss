@@ -1,0 +1,38 @@
+@use "mixins" as *;
+
+.banner-alert {
+  z-index: 7;
+  @include horizontalCenter;
+  position: fixed;
+  top: 2em;
+  width: fit-content;
+  padding: 0.25em 0.25em 0.25em 1em;
+  color: hsl(0, 0%, 20%);
+  background-color: hsla(47, 100%, 85%, 95%);
+  opacity: 1;
+  transition: opacity 0.4s ease;
+  display: flex;
+  align-items: center;
+
+  @include mobile {
+    max-width: 80vw;
+  }
+
+  .banner-alert-content {
+    flex-grow: 2;
+    padding: 0.5em 0;
+  }
+
+  button.close {
+    position: static;
+    border-radius: 0;
+
+    @include hover {
+      box-shadow: none;
+    }
+  }
+
+  &.closing {
+    opacity: 0;
+  }
+}

@@ -129,20 +129,10 @@
       }
     }
 
-    .copied {
-      z-index: 7;
-      position: absolute;
-      left: 1em;
-      top: 1em;
-      padding: 0.25em 0.25em 0.25em 1em;
-      margin: 1em;
-      color: hsl(0, 0%, 20%);
-      background-color: hsla(47, 100%, 85%, 95%);
-      animation: disappear 0.4s ease 1.6s forwards;
-
-      button.close {
-        position: static;
-        display: inline-flex;
+    @include tablet-and-larger {
+      .copied {
+        left: 2em;
+        transform: none;
       }
     }
 
@@ -183,7 +173,6 @@
       }
 
       .copied {
-        @include horizontalCenter;
         top: 0;
         margin-top: 3px;
         margin-left: 0px;
