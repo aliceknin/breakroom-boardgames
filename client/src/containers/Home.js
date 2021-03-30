@@ -1,10 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Redirect } from "react-router-dom";
+import { SERVER_ENDPOINT } from "../utils/constants";
 import "../styles/Home.scss";
 
 const Home = () => {
   const [roomName, setRoomName] = useState("");
   const [submitted, setSubmitted] = useState(false);
+
+  /* In theory, this will wake up the heroku instance if it
+  is sleeping, so that by the time someone tries to create a
+  room, it will be responsive.*/
+  useEffect(() => {
+    async function pingServer() {
+      try {
+        const res = await fetch(SERVER_ENDPOINT + "/ping");
+        const data = await res.text();
+        console.log(data);
+      } catch (err) {
+        console.log(err);
+      }
+    }
+    pingServer();
+  }, []);
 
   function handleInputChange(e) {
     setRoomName(e.target.value);

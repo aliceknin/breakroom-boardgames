@@ -9,8 +9,7 @@ import "../styles/Room.scss";
 import RoomContext from "../contexts/RoomContext";
 import LoadingWrapper from "../components/LoadingWrapper";
 import RoomHeader from "../components/RoomHeader";
-
-const ENDPOINT = "http://localhost:4005";
+import { SERVER_ENDPOINT } from "../utils/constants";
 
 const Room = () => {
   const [socket, setSocket] = useState(null);
@@ -21,10 +20,7 @@ const Room = () => {
 
   useEffect(() => {
     console.log("trying to connect...");
-    const socket =
-      process.env.NODE_ENV === "production"
-        ? socketIOClient()
-        : socketIOClient(ENDPOINT);
+    const socket = socketIOClient(SERVER_ENDPOINT);
     setSocket(socket);
     socket.userName = GenerateName().dashed;
 

@@ -1,12 +1,24 @@
 const path = require("path");
 const express = require("express");
 const app = express();
+const cors = require("cors");
 const server = require("http").Server(app);
-const io = require("socket.io")(server, {
-  cors: {
-    origin: "http://localhost:3005",
-    methods: ["GET", "POST"],
+const whitelist = [
+  "http://localhost:3005",
+  "https://breakroom-boardgames.netlify.app",
+];
+const corsOptions = {
+  origin: (origin, cb) => {
+    if (origin && !whitelist.includes(origin)) {
+      return cb(`The site ${origin} does not have access.`, false);
+    } else {
+      return cb(null, true);
+    }
   },
+  methods: ["GET", "POST"],
+};
+const io = require("socket.io")(server, {
+  cors: corsOptions,
 });
 
 const PORT = process.env.PORT || 4005;
@@ -263,6 +275,13 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
+});
+
+app.use(cors(corsOptions));
+
+app.get("/ping", (req, res) => {
+  console.log("pinged");
+  res.send("pong");
 });
 
 // heroku sets NODE_ENV to "production" by default,
