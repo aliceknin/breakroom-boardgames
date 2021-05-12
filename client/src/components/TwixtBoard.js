@@ -49,7 +49,10 @@ const TwixtBoard = ({
     let col = Number(hole.dataset.col);
     hole = b[row][col];
 
-    turnMode && havePlacedPeg && setShowPegAlert(true);
+    turnMode &&
+      havePlacedPeg &&
+      hole.color === "empty" &&
+      setShowPegAlert(true);
 
     if (linkMode) {
       console.log("link mode");
